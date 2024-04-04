@@ -4,17 +4,20 @@ API_HEADERS_SKINPORT = {
     'Cookie': 'i18n=pl; connect.sid=s%3AQwzwmFXPhGxD_BwLMAXZIIs94cjE-C-_.1OG2reSG1lFtUafWkp4LzSjrP%2FI0iW71lksZNjFTYpc; __cf_bm=MYPP6L5YgqYqueUvAl_KhEyw.PLJxSA2BJqnv09wtk8-1712065537-1.0.1.1-Y8LjhzsvpiN0QbiqzekKyPgJu6DtI4gJLLA_XNnuzNPDeCB31Ut3.37EuZOT1IVgyALJYD7EpdufC67YdDoxQA; _csrf=8FHMYrhFcIwKbPkebjhqsIpR; scid=eyJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiYWxnIjoiQTE5MktXIn0.anFeuLC4ZB8ta9Sd419s9NMgHKD8oLPDDYojRezliHtP5MqEFV3a1w.jtYmbMMXg9znXa-TV8BV6Q.2T19ild-WiqFenh4EHCGLLkVQ2NXRZiwn2xxUiX1mrRNPW21xDgGd62_QMY9Nd_C_Jj5dEP5UZ4iX061D2mVRjDxCBOS8ee0LpOuAoyolNHGrNft6m_uXEZTfPbleCWH886i8ZCppXNOhS-NZdRRy6HTgKrqG5qAt2Gq0_kfgRXxLTAhiIXkL_g9BNE4ZLuyAU--JHiU3Za5-1_xJmkU5ka8TianVLxNNBaWLUqRyeC0ztXCVrMXeh7vLBBZbhlNa-rbHy_U0RSmKaEXd1duVYsFBPh-LeMC9K-zCDrOMP68WIAc6Dt2Fpg68BjsuZNm6vVuq39uCcU6_y7_LKvAXhsysj2EtfYdhD0pG8Y0EnOcX7-bRRvjHuNA08fYhsWh_QR-zDlkzQv6915LRboA74Hd6q5bl9O2XLB5Sb2xh5Vv-87SI0DCj1rBNyT_vg9dDO1Gt_XruFeFmesMuoMLP8l1NtYP_vGO_crKYr7WiVulyWofSrCP0_rhsa1e5s7565AWenuddZsvsPm6r2VH_dys5w7GUQTF6sbRLHP6EFWt6e-7HzAPkowPxkA2HX89r3YwVStKqczvkvA9PWn-6rusR5QyUyFRPHTSEr8mAYbp0GKsCPrWdwVw2J8jprDZrmmXBOvKHKAucVc0XeL42H_FPfwGqb1HHvL6b0xA_prqJSpb-EFaR_4JVZS95ptG.3JsDhu9hXmLFp1xwsg9KUw; cf_clearance=_TBfnXRPWofOtHaR7SlvY3eOXroaJfyCbYrxHskKjVA-1712065537-1.0.1.1-Cnwa20h_keVMYXJedItTFbR1HKKEYhqACmIXCZbwuNYGftW9bRcJWZWlKCuKsnSJvLRnQf.PGr.sq2IGOMPdMA'
 }
 
+URL_SKINPORT_NEWEST = "https://skinport.com/api/browse/730?sort=date&order=desc"
+URL_SKINPORT_RABAT = "https://skinport.com/api/browse/730?sort=percent&order=desc"
+
+def sale_link_url(sale_id, url_slug_name):
+    return f"https://skinport.com/pl/item/{url_slug_name}/{sale_id}"
 
 
 def url_skinport_newest(i):
     return f"https://skinport.com/api/browse/730?sort=date&order=desc&skip={i}"
 
-URL_SKINPORT_NEWEST = "https://skinport.com/api/browse/730?sort=date&order=desc"
 
 def url_skinport_rabat(i):
     return f"https://skinport.com/api/browse/730?sort=percent&order=desc&skip={i}"
 
-URL_SKINPORT_RABAT = "https://skinport.com/api/browse/730?sort=percent&order=desc"
 
 class SkinportOfferInfo:
     def __init__(

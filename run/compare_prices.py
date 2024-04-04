@@ -13,9 +13,13 @@ def compare_prices_to_buff(skin_full_name, price_pln):
     # find goods id
     goods_id = get_record(mycursor, BUFFIDS_BUFF_ID, BUFFIDS, [BUFFIDS_ITEM_NAME], [skin_full_name])
     
-    price_buff_pln = get_buff_price(goods_id)
+    if goods_id != None:
     
-    return float(price_buff_pln)/float(price_pln)
+        price_buff_pln = get_buff_price(goods_id)
+        
+        return float(price_buff_pln)
+    else:
+        return -2
     
 
 if __name__ == "__main__":

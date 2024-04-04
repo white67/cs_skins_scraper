@@ -61,6 +61,7 @@ def get_buff_price(goods_id):
                         goods_id
                 ])
                 
+                print(response)
                 price_buff_pln = float(response["data"]["sell_min_price"])*CNY_PLN
                 
                 # price_buff_pln = get_buff_price(goods_id)
@@ -105,6 +106,7 @@ def get_buff_price(goods_id):
             #     BP_LAST_UPDATE: datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             # }
             
+            # print(f"goods_id: {goods_id}")
             price_buff_pln = float(response["data"]["sell_min_price"])*CNY_PLN
             
             # save to database

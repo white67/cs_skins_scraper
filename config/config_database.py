@@ -54,6 +54,8 @@ SO_SCRAPE_TIME = 'scrape_time'
 SO_MARKETPLACE = 'marketplace'
 SO_LAST_UPDATE = "last_update"
 SO_PRICE_RATIO = "price_ratio"
+SO_SALE_LINK = "sale_link"
+SO_GOODS_ID = "goods_id"
 
 
 # connect with database

@@ -4,6 +4,7 @@ from config.config import *
 from config.config_database import *
 from config.config_skinport import *
 from run.compare_prices import *
+from run.send_webhook import *
 
 
 def get_newest_offers_skinport(api_url):
@@ -23,9 +24,17 @@ def get_newest_offers_skinport(api_url):
             
             sale_exist = check_if_exist(mycursor, SKIN_OFFERS, [SO_SALE_ID, SO_ITEM_FULL_NAME], [item["saleId"], item["marketHashName"]])
             
-            real_price = float(item["salePrice"]) / 100
+            sale_link = sale_link_url(item["saleId"], item["url"])
+            goods_id = get_record(mycursor, BUFFIDS_BUFF_ID, BUFFIDS, [BUFFIDS_ITEM_NAME], [item["marketHashName"]])
             
-            price_ratio = compare_prices_to_buff(item["marketHashName"], real_price)
+            real_price = float(item["salePrice"]) / 100
+            buff_price = compare_prices_to_buff(item["marketHashName"], real_price)
+            
+            if buff_price == -2:
+                print(f"error getting goods id: {item["marketHashName"]}")
+                continue
+            
+            price_ratio = buff_price/real_price
             
             if item["lock"] == None:
                 trade_ban_end = ""
@@ -122,7 +131,9 @@ def get_newest_offers_skinport(api_url):
                     SO_SCRAPE_TIME,
                     SO_MARKETPLACE,
                     SO_LAST_UPDATE,
-                    SO_PRICE_RATIO
+                    SO_PRICE_RATIO,
+                    SO_SALE_LINK,
+                    SO_GOODS_ID
                 ], 
                 [
                     item["saleId"],
@@ -151,7 +162,9 @@ def get_newest_offers_skinport(api_url):
                     datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     MARKETPLACE_SKINPORT,
                     datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    price_ratio
+                    price_ratio,
+                    sale_link,
+                    goods_id
                 ])
             else:
                 # save to database
@@ -181,7 +194,9 @@ def get_newest_offers_skinport(api_url):
                 SO_SCRAPE_TIME,
                 SO_MARKETPLACE,
                 SO_LAST_UPDATE,
-                SO_PRICE_RATIO
+                SO_PRICE_RATIO,
+                SO_SALE_LINK,
+                SO_GOODS_ID
             ], 
             [
                 item["saleId"],
@@ -209,8 +224,15 @@ def get_newest_offers_skinport(api_url):
                 datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 MARKETPLACE_SKINPORT,
                 datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                price_ratio
+                price_ratio,
+                sale_link,
+                goods_id
             ])
+            
+            buff_img = get_record(mycursor, BP_IMG, BUFF_PRICES, [BP_GOODS_ID], [goods_id])
+            
+            if price_ratio >= 0.94 and real_price > 0.5:
+                send_webhook_skinport(item["marketHashName"], real_price, buff_price, price_ratio, sale_link, buff_img)
             
                 # create object
                 # offer_info = SkinportOfferInfo(
@@ -251,11 +273,13 @@ def get_newest_offers_skinport(api_url):
 def keep_scraping_newest():
     while True:
         time.sleep(sleep_random(API_TIMEOUT)+3)
-        for i in range(10):
+        for i in range(0,9):
             get_newest_offers_skinport(url_skinport_newest(i+1))
 
 
 if __name__ == "__main__":
+    # keep_scraping_newest()
+    
     get_newest_offers_skinport(URL_SKINPORT_NEWEST)
     get_newest_offers_skinport(URL_SKINPORT_RABAT)
     

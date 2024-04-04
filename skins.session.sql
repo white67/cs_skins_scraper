@@ -40,7 +40,7 @@ create table skin_offers (
 );
 
 -- @block alter
-alter table skin_offers add column price_ratio decimal(10,2);
+alter table skin_offers add column goods_id int;
 
 -- @block create
 create table buff_prices (
