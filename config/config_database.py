@@ -11,6 +11,32 @@ BUFFIDS = "buffids"
 BUFFIDS_ITEM_NAME = "item_name"
 BUFFIDS_BUFF_ID = "buff_id"
 
+SO_OFFER_ID = 'offer_id'
+SO_SALE_ID = 'sale_id'
+SO_ITEM_FULL_NAME = 'item_full_name'
+SO_ITEM_NAME = 'item_name'
+SO_STATTRAK = 'stattrak'
+SO_SALE_PRICE = 'sale_price'
+SO_SALE_CUR = 'sale_cur'
+SO_SALE_PRICE_PLN = 'sale_price_pln'
+SO_STATUS = 'sale_status'
+SO_WEAR = 'wear'
+SO_EXTERIOR = 'exterior'
+SO_RARITY = 'rarity'
+SO_ITEM_COLLECTION = 'item_collection'
+SO_ITEM_CATEGORY = 'item_category'
+SO_SOUVENIR = 'souvenir'
+SO_STICKERS = 'stickers'
+SO_PATTERN = 'pattern'
+SO_FINISH = 'finish'
+SO_INSPECT_LINK = 'inspect_link'
+SO_CUSTOM_NAME = 'custom_name'
+SO_WEAPON_NAME = 'weapon_name'
+SO_URL_SLUG = 'url_slug'
+SO_TRADE_BANNED = 'trade_banned'
+SO_TRADE_BAN_END = 'trade_ban_end'
+SO_SCRAPE_TIME = 'scrape_time'
+SO_MARKETPLACE = 'marketplace'
 
 # connect with database
 def db_connect():

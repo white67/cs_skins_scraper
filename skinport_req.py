@@ -18,7 +18,7 @@ api_headers = {
 }
 
 
-response = requests.get("https://skinport.com/api/browse/730?sort=date&order=desc&skip=11", headers=api_headers)
+response = requests.get("https://skinport.com/api/browse/730?sort=date&order=desc", headers=api_headers)
 
 
 if response.status_code == 200:

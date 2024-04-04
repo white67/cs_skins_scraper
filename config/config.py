@@ -5,6 +5,8 @@ import requests
 import json
 from datetime import datetime, timedelta, timezone
 
+
+CNY_PLN = 0.5452
 API_TIMEOUT = 2 # seconds
 
 

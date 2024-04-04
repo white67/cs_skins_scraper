@@ -5,7 +5,7 @@ from config.config_database import *
 from config.config_buff import *
 
 
-def save_buff_goods_ids():
+def save_goods_ids():
     # make connection
     db, mycursor = db_connect()
     
@@ -18,4 +18,4 @@ def save_buff_goods_ids():
 
 
 if __name__ == "__main__":
-    save_buff_goods_ids()
+    save_goods_ids()
