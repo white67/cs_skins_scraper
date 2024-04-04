@@ -41,3 +41,17 @@ create table skin_offers (
 
 -- @block alter
 drop table skin_offers;
+
+-- @block create
+create table buff_prices (
+    goods_id int not null primary key,
+    item_full_name varchar(100),
+    lowest_offer_cny decimal(10,2),
+    lowest_offer_pln decimal(10,2),
+    offers_count int,
+    highest_order_cny decimal(10,2),
+    highest_order_pln decimal(10,2),
+    orders_count int,
+    img varchar(255),
+    last_update datetime
+);

@@ -11,6 +11,18 @@ BUFFIDS = "buffids"
 BUFFIDS_ITEM_NAME = "item_name"
 BUFFIDS_BUFF_ID = "buff_id"
 
+BUFF_PRICES = "buff_prices"
+BP_GOODS_ID = "goods_id"
+BP_ITEM_FULL_NAME = "item_full_name"
+BP_LOWEST_OFFER_CNY = "lowest_offer_cny"
+BP_LOWEST_OFFER_PLN = "lowest_offer_pln"
+BP_OFFERS_COUNT = "offers_count"
+BP_HIGHEST_ORDER_CNY = "highest_order_cny"
+BP_HIGHEST_ORDER_PLN = "highest_order_pln"
+BP_ORDERS_COUNT = "orders_count"
+BP_IMG = "img"
+BP_LAST_UPDATE = "last_update"
+
 SO_OFFER_ID = 'offer_id'
 SO_SALE_ID = 'sale_id'
 SO_ITEM_FULL_NAME = 'item_full_name'
@@ -37,6 +49,7 @@ SO_TRADE_BANNED = 'trade_banned'
 SO_TRADE_BAN_END = 'trade_ban_end'
 SO_SCRAPE_TIME = 'scrape_time'
 SO_MARKETPLACE = 'marketplace'
+
 
 # connect with database
 def db_connect():
@@ -100,23 +113,18 @@ def db_update(db, cursor, table_name, columns, data, columns_to_check, data_to_c
             cursor.execute(update_query, updated_data)
             db.commit()
             print(f"[{table_name}] Entry updated successfully.")
-            print(f"{data}")
         else:
             print(f"[{table_name}] Entry does not exist: {data_to_check}")
-            # db_add(db, cursor, PLAYERS, [PLAYERS_PLAYER_NAME, PLAYERS_SOFASCORE_LINK, PLAYERS_TEAM, PLAYERS_BIRTH_DATE], [player_name, sofascore_link, team_name, birth_date])
-            
-            # try adding again
-            # here add code but it seems like it needs to be class object
     except mysql.connector.Error as err:
         print("Error:", err)
         db.rollback()  # Rollback the transaction if an error occurs
 
 
-def get_id(cursor, id_data, table_name, columns, data):
+def get_record(cursor, column_to_get, table_name, columns, data):
     where_clause = " AND ".join(f"{column} = %s" for column in columns)
     
     # Construct the SELECT query
-    query = f"SELECT {id_data} FROM {table_name} WHERE {where_clause}"
+    query = f"SELECT {column_to_get} FROM {table_name} WHERE {where_clause}"
     
     cursor.execute(query, data)
     result = cursor.fetchone()
