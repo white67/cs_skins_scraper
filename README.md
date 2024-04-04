@@ -1,0 +1,1 @@
+Buff IDs given by: https://github.com/ModestSerhat/buff163-ids
