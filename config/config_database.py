@@ -7,6 +7,8 @@ DB_USER = "root"
 DB_PASSWD = "mansionmusik1400"
 DB_DATABASE = "skins_valued"
 
+MARKETPLACE_SKINPORT = "skinport"
+
 BUFFIDS = "buffids"
 BUFFIDS_ITEM_NAME = "item_name"
 BUFFIDS_BUFF_ID = "buff_id"
@@ -23,6 +25,7 @@ BP_ORDERS_COUNT = "orders_count"
 BP_IMG = "img"
 BP_LAST_UPDATE = "last_update"
 
+SKIN_OFFERS = "skin_offers"
 SO_OFFER_ID = 'offer_id'
 SO_SALE_ID = 'sale_id'
 SO_ITEM_FULL_NAME = 'item_full_name'
@@ -49,6 +52,8 @@ SO_TRADE_BANNED = 'trade_banned'
 SO_TRADE_BAN_END = 'trade_ban_end'
 SO_SCRAPE_TIME = 'scrape_time'
 SO_MARKETPLACE = 'marketplace'
+SO_LAST_UPDATE = "last_update"
+SO_PRICE_RATIO = "price_ratio"
 
 
 # connect with database
@@ -85,7 +90,7 @@ def db_add(db, cursor, table_name, columns, data):
 
 
 # function to check if entry in database (in single table) already exists
-def check_duplicate(cursor, table_name, columns, data):
+def check_if_exist(cursor, table_name, columns, data):
     # Construct the WHERE clause dynamically based on the columns provided
     where_clause = " AND ".join(f"{column} = %s" for column in columns)
     query = f"SELECT * FROM {table_name} WHERE {where_clause}"
@@ -104,7 +109,7 @@ def db_update(db, cursor, table_name, columns, data, columns_to_check, data_to_c
         else:
             where_clause = " AND ".join(f"{column} = %s" for column in columns_to_check)
             where_clause = f" WHERE {where_clause}"
-            existance = check_duplicate(cursor, table_name, columns_to_check, data_to_check)
+            existance = check_if_exist(cursor, table_name, columns_to_check, data_to_check)
             updated_data = data + data_to_check
             
         if existance:

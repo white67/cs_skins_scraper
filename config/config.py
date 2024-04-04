@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 
 
 CNY_PLN = 0.5452
-API_TIMEOUT = 2 # seconds
+API_TIMEOUT = 1 # seconds
 
 
 def sleep_random(time):
