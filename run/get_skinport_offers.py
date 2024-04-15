@@ -8,6 +8,9 @@ from run.send_webhook import *
 
 
 def get_newest_offers_skinport(api_url):
+    
+    seen_offers = 0
+    
     # make connection
     db, mycursor = db_connect()
     
@@ -100,6 +103,7 @@ def get_newest_offers_skinport(api_url):
                             item["saleId"], 
                             item["marketHashName"]
                         ])
+                seen_offers += 1
                 continue
             
             if item["lock"] != None:
@@ -229,59 +233,42 @@ def get_newest_offers_skinport(api_url):
                 goods_id
             ])
             
-            buff_img = get_record(mycursor, BP_IMG, BUFF_PRICES, [BP_GOODS_ID], [goods_id])
-            
-            if price_ratio >= 0.94 and real_price > 0.5:
-                send_webhook_skinport(item["marketHashName"], real_price, buff_price, price_ratio, sale_link, buff_img)
-            
-                # create object
-                # offer_info = SkinportOfferInfo(
-                #     item["saleId"],
-                #     item["marketHashName"],
-                #     item["family"],
-                #     item["stattrak"],
-                #     item["salePrice"],
-                #     item["currency"],
-                #     item["salePrice"],
-                #     item["saleStatus"],
-                #     item["wear"],
-                #     item["exterior"],
-                #     item["rarity"],
-                #     item["collection"],
-                #     item["category"],
-                #     item["souvenir"],
-                #     len(item["stickers"]),
-                #     item["pattern"],
-                #     item["finish"],
-                #     item["link"],
-                #     f"{item["customName"]}",
-                #     item["subCategory"],
-                #     item["url"],
-                #     trade_banned,
-                #     trade_ban_end,
-                #     datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                #     MARKETPLACE_SKINPORT,
-                #     datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                # )
+            if price_ratio >= 1.1 and real_price > 30:
+                buff_img = get_record(mycursor, BP_IMG, BUFF_PRICES, [BP_GOODS_ID], [goods_id])
+                
+                if trade_ban_end != "":
+                    lock_days = trade_ban_days(trade_ban_end)
+                else:
+                    lock_days = 0
+                send_webhook_skinport(item["marketHashName"], round(real_price,2), round(buff_price,2), price_ratio, sale_link, buff_img, lock_days, item["wear"])
     
     # close connection
     db_close(db, mycursor)
     
     # return offer_info
+    return seen_offers
 
 
 def keep_scraping_newest():
     while True:
-        time.sleep(sleep_random(API_TIMEOUT)+3)
-        for i in range(0,9):
-            get_newest_offers_skinport(url_skinport_newest(i+1))
+        seen_offers = 0
+        for i in range(0,10):
+            if seen_offers > 5:
+                break
+            else:
+                seen_offers += get_newest_offers_skinport(url_skinport_newest(i))
+        print(f"Sleeping for {SKINPORT_TIMEOUT} seconds...")
+        time.sleep(sleep_random(SKINPORT_TIMEOUT))
 
 
 if __name__ == "__main__":
-    # keep_scraping_newest()
+    keep_scraping_newest()
     
-    get_newest_offers_skinport(URL_SKINPORT_NEWEST)
-    get_newest_offers_skinport(URL_SKINPORT_RABAT)
+    # get_newest_offers_skinport(URL_SKINPORT_NEWEST)
+    # get_newest_offers_skinport(URL_SKINPORT_RABAT)
     
-    for i in range(10):
-        get_newest_offers_skinport(url_skinport_rabat(i+1))
+    # for i in range(3):
+    #     get_newest_offers_skinport(url_skinport_newest(i))
+    
+    # for i in range(6):
+    #     get_newest_offers_skinport(url_skinport_rabat(i))

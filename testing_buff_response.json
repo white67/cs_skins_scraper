@@ -1,0 +1,281 @@
+{
+    "code": "OK",
+    "data": {
+        "allow_bundle_inventory": false,
+        "appid": 730,
+        "asset_tags": [],
+        "asset_tags_buy_order": [],
+        "asset_tags_history": [],
+        "bookmarked": false,
+        "buy_max_price": "14130",
+        "buy_min_price_limit": "4370",
+        "buy_num": 24,
+        "can_buy": true,
+        "can_sort_by_heat": true,
+        "container_type": "weaponcase",
+        "containers": [
+            "Operation Hydra Case",
+            "Glove Case"
+        ],
+        "description": null,
+        "fade_choices": [
+            [
+                "80",
+                "90"
+            ],
+            [
+                "90",
+                "93"
+            ],
+            [
+                "93",
+                "95"
+            ],
+            [
+                "95",
+                "97"
+            ],
+            [
+                "97",
+                "99"
+            ],
+            [
+                "99",
+                "100"
+            ]
+        ],
+        "game": "csgo",
+        "goods_info": {
+            "can_3d_inspect": true,
+            "can_display_inspect": true,
+            "can_inspect": true,
+            "can_preview": true,
+            "can_preview_upload": false,
+            "can_search_by_patch": false,
+            "can_search_by_sticker": false,
+            "can_search_by_tournament": false,
+            "can_specific_buy": false,
+            "can_specific_paintwear_buy": true,
+            "icon_url": "https://market.fp.ps.netease.com/file/65f88f6ea716fdc4c52ddab9adNx6LCj05",
+            "info": {
+                "tags": {
+                    "exterior": {
+                        "category": "exterior",
+                        "id": 514,
+                        "internal_name": "wearcategory4",
+                        "localized_name": "Battle-Scarred"
+                    },
+                    "quality": {
+                        "category": "quality",
+                        "id": 519,
+                        "internal_name": "unusual",
+                        "localized_name": "★"
+                    },
+                    "rarity": {
+                        "category": "rarity",
+                        "id": 598,
+                        "internal_name": "ancient",
+                        "localized_name": "Extraordinary"
+                    },
+                    "type": {
+                        "category": "type",
+                        "id": 587,
+                        "internal_name": "type_hands",
+                        "localized_name": "Gloves"
+                    },
+                    "weapon": {
+                        "category": "weapon",
+                        "id": 569,
+                        "internal_name": "weapon_sport_gloves",
+                        "localized_name": "Sport Gloves"
+                    }
+                }
+            },
+            "item_id": null,
+            "normal_icon_url": "https://market.fp.ps.netease.com/file/65f88f6ea716fdc4c52ddab9adNx6LCj05",
+            "original_icon_url": "https://market.fp.ps.netease.com/file/65f88f6cb6d32a47dff581005DEaBj6y05",
+            "specific": [],
+            "specific_paintwear_buying_choices": [
+                [
+                    "0.45",
+                    "0.50"
+                ],
+                [
+                    "0.45",
+                    "0.63"
+                ],
+                [
+                    "0.45",
+                    "0.76"
+                ]
+            ],
+            "steam_price": "2050.68",
+            "steam_price_cny": "14839.95",
+            "wear_rank_order_list": [
+                {
+                    "display_text": "Float ↑",
+                    "order_type": "0"
+                },
+                {
+                    "display_text": "Float ↓",
+                    "order_type": "1"
+                }
+            ]
+        },
+        "has_buff_price_history": true,
+        "has_bundle_inventory_order": false,
+        "has_fade_name": false,
+        "has_paintwear_rank": true,
+        "has_related": false,
+        "has_rune": false,
+        "id": 43258,
+        "is_container": false,
+        "item_id": null,
+        "market_hash_name": "★ Sport Gloves | Pandora's Box (Battle-Scarred)",
+        "market_min_price": "0",
+        "name": "★ Sport Gloves | Pandora's Box (Battle-Scarred)",
+        "paintseed_filters": [
+            {
+                "name": "Search Paint Seed",
+                "placeholder": "Enter paint seed 0-1000",
+                "search": true,
+                "type": "paintseed"
+            }
+        ],
+        "paintseed_filters_buy_order": [],
+        "paintseed_filters_history": [],
+        "paintwear_choices": [
+            [
+                "0.45",
+                "0.50"
+            ],
+            [
+                "0.50",
+                "0.63"
+            ],
+            [
+                "0.63",
+                "0.76"
+            ],
+            [
+                "0.76",
+                "0.80"
+            ]
+        ],
+        "paintwear_range": [
+            "0.45",
+            "0.80"
+        ],
+        "quick_price": "14548.5",
+        "rank_types": [],
+        "recent_sold_count": 0,
+        "relative_goods": [
+            {
+                "goods_id": 755908,
+                "goods_name": "运动手套（★） | 潘多拉之盒 (崭新出厂)",
+                "is_change": false,
+                "sell_min_price": "436666",
+                "sell_num": 12,
+                "tag": "Factory New",
+                "tag_name": "Factory New"
+            },
+            {
+                "goods_id": 44999,
+                "goods_name": "运动手套（★） | 潘多拉之盒 (略有磨损)",
+                "is_change": false,
+                "sell_min_price": "71899.5",
+                "sell_num": 216,
+                "tag": "Minimal Wear",
+                "tag_name": "Minimal Wear"
+            },
+            {
+                "goods_id": 43259,
+                "goods_name": "运动手套（★） | 潘多拉之盒 (久经沙场)",
+                "is_change": false,
+                "sell_min_price": "33500",
+                "sell_num": 516,
+                "tag": "Field-Tested",
+                "tag_name": "Field-Tested"
+            },
+            {
+                "goods_id": 43260,
+                "goods_name": "运动手套（★） | 潘多拉之盒 (破损不堪)",
+                "is_change": false,
+                "sell_min_price": "27360",
+                "sell_num": 42,
+                "tag": "Well-Worn",
+                "tag_name": "Well-Worn"
+            },
+            {
+                "goods_id": 43258,
+                "goods_name": "运动手套（★） | 潘多拉之盒 (战痕累累)",
+                "is_change": false,
+                "sell_min_price": "14549",
+                "sell_num": 34,
+                "tag": "Battle-Scarred",
+                "tag_name": "Battle-Scarred"
+            }
+        ],
+        "sell_min_price": "14549",
+        "sell_num": 34,
+        "sell_reference_price": "14549",
+        "share_data": {
+            "content": "Popular CSGO and DOTA2 skins trading market, fast and safe",
+            "thumbnail": "https://market.fp.ps.netease.com/file/66196103230b16d1c50faa18xdWMehe905",
+            "title": "★ Sport Gloves | Pandora's Box (Battle-Scarred)",
+            "url": "https://buff.163.com/s/goods.html?goods_id=43258&game=csgo"
+        },
+        "short_name": "★ Sport Gloves | Pandora's Box",
+        "show_game_cms_icon": false,
+        "sort_by_fields": {
+            "list": [
+                {
+                    "attribute": "sort_by",
+                    "default_value": "default",
+                    "list": [
+                        {
+                            "title": "Default",
+                            "value": "default"
+                        },
+                        {
+                            "title": "Latest",
+                            "value": "created.desc"
+                        },
+                        {
+                            "title": "Hot↓",
+                            "value": "heat.desc"
+                        },
+                        {
+                            "title": "Price↑",
+                            "value": "price.asc"
+                        },
+                        {
+                            "title": "Price↓",
+                            "value": "price.desc"
+                        },
+                        {
+                            "title": "Float↑",
+                            "value": "paintwear.asc"
+                        },
+                        {
+                            "title": "Float↓",
+                            "value": "paintwear.desc"
+                        },
+                        {
+                            "title": "Time cost↑",
+                            "value": "seller.asc"
+                        }
+                    ]
+                }
+            ],
+            "title": "Sort"
+        },
+        "steam_market_url": "https://steamcommunity.com/market/listings/730/%E2%98%85%20Sport%20Gloves%20%7C%20Pandora%27s%20Box%20%28Battle-Scarred%29",
+        "super_short_name": "Pandora's Box",
+        "support_name_tag": false,
+        "transacted_num": 0,
+        "user_show_count": 23006,
+        "wiki_link": null
+    },
+    "msg": null
+}
