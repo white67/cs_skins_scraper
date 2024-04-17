@@ -9,7 +9,7 @@ from datetime import datetime, timedelta, timezone
 
 CNY_PLN = 0.555
 API_TIMEOUT = 1 # seconds
-SKINPORT_TIMEOUT = 17 # seconds
+SKINPORT_TIMEOUT = 8 # seconds
 
 
 def sleep_random(time):
@@ -26,6 +26,7 @@ def read_json_file(json_file):
 def save_json_file(json_file, data):
     with open(json_file, "w", encoding="utf-8") as outfile:
         json.dump(data, outfile, ensure_ascii=False)
+
 
 # calc days trade ban
 def trade_ban_days(end_lock_datetime):

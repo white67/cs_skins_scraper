@@ -1,6 +1,7 @@
+import sys
+sys.path.append('')
 from discord_webhook import DiscordWebhook, DiscordEmbed
-
-WEBHOOK_URL = ""
+from config.config import *
 
 def send_webhook():
     
@@ -37,6 +38,7 @@ def send_webhook():
     embed.add_embed_field(name="Sale price", value=f"{sale_price}zł")
     embed.add_embed_field(name="Buff price", value=f"{buff_price}zł")
     embed.add_embed_field(name="Ratio", value=f"{price_ratio}%")
+    embed.add_embed_field(name="xd", value=f"https://buff.163.com/market/csgo")
 
     # add embed object to webhook
     webhook.add_embed(embed)

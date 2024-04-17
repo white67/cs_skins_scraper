@@ -2,6 +2,7 @@ import mysql.connector
 from mysql.connector import Error
 from datetime import datetime
 
+# credentials to database connection
 DB_HOST = "localhost"
 DB_USER = "root"
 DB_PASSWD = "mansionmusik1400"
@@ -138,5 +139,20 @@ def get_record(cursor, column_to_get, table_name, columns, data):
     
     if result:
         return result[0]
+    else:
+        return None
+
+
+def get_records(cursor, columns_to_get, table_name, columns, data):
+    where_clause = " AND ".join(f"{column} = %s" for column in columns)
+    select_clause = ", ".join(columns_to_get)
+    # Construct the SELECT query
+    query = f"SELECT {select_clause} FROM {table_name} WHERE {where_clause}"
+    
+    cursor.execute(query, data)
+    result = cursor.fetchone()
+    
+    if result:
+        return result
     else:
         return None

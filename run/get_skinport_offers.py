@@ -3,7 +3,7 @@ sys.path.append('')
 from config.config import *
 from config.config_database import *
 from config.config_skinport import *
-from run.compare_prices import *
+from run.get_buff_price import *
 from run.send_webhook import *
 
 
@@ -31,7 +31,7 @@ def get_newest_offers_skinport(api_url):
             goods_id = get_record(mycursor, BUFFIDS_BUFF_ID, BUFFIDS, [BUFFIDS_ITEM_NAME], [item["marketHashName"]])
             
             real_price = float(item["salePrice"]) / 100
-            buff_price = compare_prices_to_buff(item["marketHashName"], real_price)
+            buff_price = get_buff_price(db, mycursor, goods_id)
             
             if buff_price == -2:
                 print(f"error getting goods id: {item["marketHashName"]}")
@@ -240,7 +240,7 @@ def get_newest_offers_skinport(api_url):
                     lock_days = trade_ban_days(trade_ban_end)
                 else:
                     lock_days = 0
-                send_webhook_skinport(item["marketHashName"], round(real_price,2), round(buff_price,2), price_ratio, sale_link, buff_img, lock_days, item["wear"])
+                send_webhook_skinport(item["marketHashName"], round(real_price,2), round(buff_price,2), price_ratio, sale_link, buff_img, lock_days, item["wear"], goods_id)
     
     # close connection
     db_close(db, mycursor)

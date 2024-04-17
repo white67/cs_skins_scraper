@@ -1,10 +1,12 @@
 from discord_webhook import DiscordWebhook, DiscordEmbed
 from config.config import *
+from config.config_buff import *
 
-def send_webhook_skinport(item_name, sale_price, buff_price, price_ratio, offer_url, icon_url, trade_lock, wear):
+def send_webhook_skinport(item_name, sale_price, buff_price, price_ratio, offer_url, icon_url, trade_lock, wear, goods_id):
         
     price_ratio = round(price_ratio*100-100,2)
-    wear = round(wear,5)
+    if type(wear) == float:
+        wear = round(wear,5)
         
     webhook = DiscordWebhook(url=WEBHOOK_URL, rate_limit_retry=True)
     
@@ -30,13 +32,9 @@ def send_webhook_skinport(item_name, sale_price, buff_price, price_ratio, offer_
     embed.add_embed_field(name="Sale price", value=f"{sale_price}zł")
     embed.add_embed_field(name="Buff price", value=f"{buff_price}zł")
     embed.add_embed_field(name="Ratio", value=f"{price_ratio}%")
+    embed.add_embed_field(name="Buff link", value=buff_item_direct_link(goods_id))
 
     # add embed object to webhook
     webhook.add_embed(embed)
     
     response = webhook.execute()
-    
-    # if 200 <= response.status_code < 300:
-    #     print(f"Webhook sent")
-    # else:
-    #     print(f"Webhook NOT sent with")
