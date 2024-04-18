@@ -7,12 +7,9 @@ from run.get_buff_price import *
 from run.send_webhook import *
 
 
-def get_newest_offers_skinport(api_url):
+def get_newest_offers_skinport(db, mycursor, api_url):
     
     seen_offers = 0
-    
-    # make connection
-    db, mycursor = db_connect()
     
     # get request
     response = requests.get(api_url, headers=API_HEADERS_SKINPORT)
@@ -34,7 +31,7 @@ def get_newest_offers_skinport(api_url):
             buff_price = get_buff_price(db, mycursor, goods_id)
             
             if buff_price == -1:
-                print(f"error getting goods id: {item["marketHashName"]}\nsleeping...")
+                print(f"error getting goods id: {item["marketHashName"]} | {goods_id}\nsleeping...")
                 time.sleep(sleep_random(5))
                 continue
             
@@ -106,14 +103,14 @@ def get_newest_offers_skinport(api_url):
                         ])
                 seen_offers += 1
                 
-                if price_ratio >= RATIO_MIN and real_price > PRICE_MIN:
-                    buff_img = get_record(mycursor, BP_IMG, BUFF_PRICES, [BP_GOODS_ID], [goods_id])
+                # if price_ratio >= RATIO_MIN and real_price > PRICE_MIN:
+                #     buff_img = get_record(mycursor, BP_IMG, BUFF_PRICES, [BP_GOODS_ID], [goods_id])
                     
-                    if trade_ban_end != "":
-                        lock_days = trade_ban_days(trade_ban_end)
-                    else:
-                        lock_days = 0
-                    send_webhook("skinport", item["marketHashName"], round(real_price,2), round(buff_price,2), price_ratio, sale_link, buff_img, lock_days, item["wear"], goods_id)
+                #     if trade_ban_end != "":
+                #         lock_days = trade_ban_days(trade_ban_end)
+                #     else:
+                #         lock_days = 0
+                #     send_webhook("skinport", item["marketHashName"], round(real_price,2), round(buff_price,2), price_ratio, sale_link, buff_img, lock_days, item["wear"], goods_id)
                     
                 continue
             
@@ -253,23 +250,27 @@ def get_newest_offers_skinport(api_url):
                     lock_days = 0
                 send_webhook("skinport", item["marketHashName"], round(real_price,2), round(buff_price,2), price_ratio, sale_link, buff_img, lock_days, item["wear"], goods_id)
     
-    # close connection
-    db_close(db, mycursor)
     
     # return offer_info
     return seen_offers
 
 
 def keep_scraping_newest():
+    
+    db, mycursor = db_connect()
+    
     while True:
         seen_offers = 0
         for i in range(0,10):
             if seen_offers > 5:
                 break
             else:
-                seen_offers += get_newest_offers_skinport(url_skinport_newest(i))
+                seen_offers += get_newest_offers_skinport(db, mycursor, url_skinport_newest(i))
         print(f"Sleeping for {SKINPORT_TIMEOUT} seconds...")
         time.sleep(sleep_random(SKINPORT_TIMEOUT))
+    
+    # close connection
+    db_close(db, mycursor)
 
 
 if __name__ == "__main__":
