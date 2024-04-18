@@ -57,6 +57,8 @@ SO_LAST_UPDATE = "last_update"
 SO_PRICE_RATIO = "price_ratio"
 SO_SALE_LINK = "sale_link"
 SO_GOODS_ID = "goods_id"
+SO_AUCTION_HASH = "auction_hash"
+SO_IMAGE_URL = "image_url"
 
 
 # connect with database

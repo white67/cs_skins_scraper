@@ -1,7 +1,7 @@
 URL_SKINPORT_NEWEST = "https://skinport.com/api/browse/730?sort=date&order=desc"
 URL_SKINPORT_RABAT = "https://skinport.com/api/browse/730?sort=percent&order=desc"
 
-def sale_link_url(sale_id, url_slug_name):
+def skinport_sale_link(sale_id, url_slug_name):
     return f"https://skinport.com/pl/item/{url_slug_name}/{sale_id}"
 
 

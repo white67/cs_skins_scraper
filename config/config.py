@@ -5,11 +5,12 @@ import requests
 import json
 from datetime import datetime, timedelta, timezone
 
-
-
 CNY_PLN = 0.555
 API_TIMEOUT = 1 # seconds
 SKINPORT_TIMEOUT = 8 # seconds
+SKINBID_TIMEOUT = 4 # seconds
+RATIO_MIN = 1.1
+PRICE_MIN = 30 # CHANGE also in config specific urls e.g. &pricegt=703
 
 
 def sleep_random(time):

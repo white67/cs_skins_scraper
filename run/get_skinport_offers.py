@@ -27,7 +27,7 @@ def get_newest_offers_skinport(api_url):
             
             sale_exist = check_if_exist(mycursor, SKIN_OFFERS, [SO_SALE_ID, SO_ITEM_FULL_NAME], [item["saleId"], item["marketHashName"]])
             
-            sale_link = sale_link_url(item["saleId"], item["url"])
+            sale_link = skinport_sale_link(item["saleId"], item["url"])
             goods_id = get_record(mycursor, BUFFIDS_BUFF_ID, BUFFIDS, [BUFFIDS_ITEM_NAME], [item["marketHashName"]])
             
             real_price = float(item["salePrice"]) / 100
@@ -104,6 +104,16 @@ def get_newest_offers_skinport(api_url):
                             item["marketHashName"]
                         ])
                 seen_offers += 1
+                
+                if price_ratio >= RATIO_MIN and real_price > PRICE_MIN:
+                    buff_img = get_record(mycursor, BP_IMG, BUFF_PRICES, [BP_GOODS_ID], [goods_id])
+                    
+                    if trade_ban_end != "":
+                        lock_days = trade_ban_days(trade_ban_end)
+                    else:
+                        lock_days = 0
+                    send_webhook("skinport", item["marketHashName"], round(real_price,2), round(buff_price,2), price_ratio, sale_link, buff_img, lock_days, item["wear"], goods_id)
+                    
                 continue
             
             if item["lock"] != None:
@@ -233,14 +243,14 @@ def get_newest_offers_skinport(api_url):
                 goods_id
             ])
             
-            if price_ratio >= 1.1 and real_price > 30:
+            if price_ratio >= RATIO_MIN and real_price > PRICE_MIN:
                 buff_img = get_record(mycursor, BP_IMG, BUFF_PRICES, [BP_GOODS_ID], [goods_id])
                 
                 if trade_ban_end != "":
                     lock_days = trade_ban_days(trade_ban_end)
                 else:
                     lock_days = 0
-                send_webhook_skinport(item["marketHashName"], round(real_price,2), round(buff_price,2), price_ratio, sale_link, buff_img, lock_days, item["wear"], goods_id)
+                send_webhook("skinport", item["marketHashName"], round(real_price,2), round(buff_price,2), price_ratio, sale_link, buff_img, lock_days, item["wear"], goods_id)
     
     # close connection
     db_close(db, mycursor)
