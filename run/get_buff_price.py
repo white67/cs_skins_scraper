@@ -26,33 +26,36 @@ def get_buff_price(db, mycursor, goods_id):
             response = requests.get(buff_api_item(goods_id), headers=API_HEADERS_BUFF)
 
             if response.status_code == 200:
-                response = response.json()
-                db_update(db, mycursor, BUFF_PRICES, [
-                        BP_LOWEST_OFFER_CNY, 
-                        BP_LOWEST_OFFER_PLN, 
-                        BP_OFFERS_COUNT, 
-                        BP_HIGHEST_ORDER_CNY, 
-                        BP_HIGHEST_ORDER_PLN, 
-                        BP_ORDERS_COUNT, 
-                        BP_LAST_UPDATE
-                    ], 
-                    [
-                        float(response["data"]["sell_min_price"]),
-                        float(response["data"]["sell_min_price"])*CNY_PLN,
-                        response["data"]["sell_num"],
-                        float(response["data"]["buy_max_price"]),
-                        float(response["data"]["buy_max_price"])*CNY_PLN,
-                        response["data"]["buy_num"],
-                        datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    ],
-                    [
-                        BP_GOODS_ID
-                    ],
-                    [
-                        goods_id
-                ])
+                if "data" in response:
+                    response = response.json()
+                    db_update(db, mycursor, BUFF_PRICES, [
+                            BP_LOWEST_OFFER_CNY, 
+                            BP_LOWEST_OFFER_PLN, 
+                            BP_OFFERS_COUNT, 
+                            BP_HIGHEST_ORDER_CNY, 
+                            BP_HIGHEST_ORDER_PLN, 
+                            BP_ORDERS_COUNT, 
+                            BP_LAST_UPDATE
+                        ], 
+                        [
+                            float(response["data"]["sell_min_price"]),
+                            float(response["data"]["sell_min_price"])*CNY_PLN,
+                            response["data"]["sell_num"],
+                            float(response["data"]["buy_max_price"]),
+                            float(response["data"]["buy_max_price"])*CNY_PLN,
+                            response["data"]["buy_num"],
+                            datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        ],
+                        [
+                            BP_GOODS_ID
+                        ],
+                        [
+                            goods_id
+                    ])
                 
-                price_buff_pln = float(response["data"]["sell_min_price"])*CNY_PLN
+                    price_buff_pln = float(response["data"]["sell_min_price"])*CNY_PLN
+                else:
+                    return -1
     else:
         # print("Price has not been scraped...")
         time.sleep(sleep_random(API_TIMEOUT))
@@ -60,33 +63,36 @@ def get_buff_price(db, mycursor, goods_id):
 
         if response.status_code == 200:
             response = response.json()
-            price_buff_pln = float(response["data"]["sell_min_price"])*CNY_PLN
-            
-            # save to database
-            db_add(db, mycursor, BUFF_PRICES, [
-                    BP_GOODS_ID, 
-                    BP_ITEM_FULL_NAME, 
-                    BP_LOWEST_OFFER_CNY, 
-                    BP_LOWEST_OFFER_PLN, 
-                    BP_OFFERS_COUNT, 
-                    BP_HIGHEST_ORDER_CNY, 
-                    BP_HIGHEST_ORDER_PLN, 
-                    BP_ORDERS_COUNT, 
-                    BP_IMG, 
-                    BP_LAST_UPDATE
-                ], 
-                [
-                    goods_id,
-                    response["data"]["name"],
-                    float(response["data"]["sell_min_price"]),
-                    float(response["data"]["sell_min_price"])*CNY_PLN,
-                    response["data"]["sell_num"],
-                    float(response["data"]["buy_max_price"]),
-                    float(response["data"]["buy_max_price"])*CNY_PLN,
-                    response["data"]["buy_num"],
-                    response["data"]["goods_info"]["icon_url"],
-                    datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            ])
+            if "data" in response:
+                price_buff_pln = float(response["data"]["sell_min_price"])*CNY_PLN
+                
+                # save to database
+                db_add(db, mycursor, BUFF_PRICES, [
+                        BP_GOODS_ID, 
+                        BP_ITEM_FULL_NAME, 
+                        BP_LOWEST_OFFER_CNY, 
+                        BP_LOWEST_OFFER_PLN, 
+                        BP_OFFERS_COUNT, 
+                        BP_HIGHEST_ORDER_CNY, 
+                        BP_HIGHEST_ORDER_PLN, 
+                        BP_ORDERS_COUNT, 
+                        BP_IMG, 
+                        BP_LAST_UPDATE
+                    ], 
+                    [
+                        goods_id,
+                        response["data"]["name"],
+                        float(response["data"]["sell_min_price"]),
+                        float(response["data"]["sell_min_price"])*CNY_PLN,
+                        response["data"]["sell_num"],
+                        float(response["data"]["buy_max_price"]),
+                        float(response["data"]["buy_max_price"])*CNY_PLN,
+                        response["data"]["buy_num"],
+                        response["data"]["goods_info"]["icon_url"],
+                        datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                ])
+            else:
+                return -1
     
     return float(price_buff_pln)
 

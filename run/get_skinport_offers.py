@@ -33,8 +33,9 @@ def get_newest_offers_skinport(api_url):
             real_price = float(item["salePrice"]) / 100
             buff_price = get_buff_price(db, mycursor, goods_id)
             
-            if buff_price == -2:
-                print(f"error getting goods id: {item["marketHashName"]}")
+            if buff_price == -1:
+                print(f"error getting goods id: {item["marketHashName"]}\nsleeping...")
+                time.sleep(sleep_random(5))
                 continue
             
             price_ratio = buff_price/real_price

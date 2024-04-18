@@ -2,7 +2,6 @@ import sys
 sys.path.append('')
 from config.config import *
 from config.config_database import *
-from config.config_skinport import *
 from config.config_skinbid import *
 from run.get_buff_price import *
 from run.send_webhook import *
@@ -37,8 +36,9 @@ def get_newest_offers_skinbid(api_url):
             real_price = float(item["nextMinimumBid"])
             buff_price = get_buff_price(db, mycursor, goods_id)
             
-            if buff_price == -2:
-                print(f"error getting goods id: {item["marketHashName"]}")
+            if buff_price == -1:
+                print(f"error getting goods id: {item["marketHashName"]}\nsleeping...")
+                time.sleep(sleep_random(5))
                 continue
             
             price_ratio = buff_price/real_price
@@ -156,4 +156,4 @@ if __name__ == "__main__":
         print(f"Sleeping for {SKINBID_TIMEOUT} seconds...")
         time.sleep(sleep_random(SKINBID_TIMEOUT))
         
-    # get_newest_offers_skinport(url_skinbid_newest(0))
+    # get_newest_offers_skinbid(url_skinbid_newest(0))
