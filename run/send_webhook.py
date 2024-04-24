@@ -17,6 +17,9 @@ def send_webhook(marketplace, item_name, sale_price, buff_price, price_ratio, of
     elif marketplace == "dmarket":
         custom_color = "16d9ab"
         webhook_url = WEBHOOK_DMARKET_URL
+    elif marketplace == "csfloat":
+        custom_color = "346beb"
+        webhook_url = WEBHOOK_CSFLOAT_URL   
         
     webhook = DiscordWebhook(url=webhook_url, rate_limit_retry=True)
     
@@ -41,6 +44,11 @@ def send_webhook(marketplace, item_name, sale_price, buff_price, price_ratio, of
             embed.set_footer(text=f"{trade_lock} days | {wear}")
     elif marketplace == "skinbid":
         embed.set_footer(text=f"{wear}")
+    elif marketplace == "dmarket":
+        if trade_lock == 0:
+            embed.set_footer(text=f"No trade ban | {wear}")
+        else:
+            embed.set_footer(text=f"{trade_lock} days | {wear}")
     elif marketplace == "dmarket":
         if trade_lock == 0:
             embed.set_footer(text=f"No trade ban | {wear}")

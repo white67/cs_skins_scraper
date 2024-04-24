@@ -7,12 +7,14 @@ from datetime import datetime, timedelta, timezone
 
 
 
+
 CNY_PLN = 0.556
-USD_PLN = 4.03
+USD_PLN = 4.046
 API_TIMEOUT = 2 # seconds
 SKINPORT_TIMEOUT = 8 # seconds
 SKINBID_TIMEOUT = 8 # seconds
 DMARKET_TIMEOUT = 8 # seconds
+CSFLOAT_TIMEOUT = 8 # seconds
 SKINBID_TIMEOUT_PAGE = 4 # seconds
 RATIO_MIN = 1.08
 PRICE_MIN = 27 # CHANGE also in config specific urls e.g. &pricegt=703
