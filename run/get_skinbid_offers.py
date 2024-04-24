@@ -26,54 +26,57 @@ def get_newest_offers_skinbid(db, mycursor, api_url):
             auction_hash = item["auction"]["auctionHash"]
             
             sale_exist = check_if_exist(mycursor, SKIN_OFFERS, [SO_AUCTION_HASH, SO_ITEM_FULL_NAME], [auction_hash, item_full_name])
-            
-            sale_link = skinbid_sale_link(auction_hash)
-            goods_id = get_record(mycursor, BUFFIDS_BUFF_ID, BUFFIDS, [BUFFIDS_ITEM_NAME], [item_full_name])
-            
-            real_price = float(item["nextMinimumBid"])
-            buff_price = get_buff_price(db, mycursor, goods_id)
-            
-            if buff_price == -1:
-                print(f"error getting goods id: {item_full_name} | {goods_id}\nsleeping...")
-                time.sleep(sleep_random(5))
-                continue
-            
-            price_ratio = buff_price/real_price
-            
-            # SKINBID uses only P2P so no trade ban
-            trade_ban_end = ""
-            trade_banned = False
-            lock_days = 0
              
             if sale_exist:
-                # db_update(db, mycursor, SKIN_OFFERS, [
-                #         SO_SALE_PRICE,
-                #         SO_SALE_PRICE_PLN,
-                #         SO_LAST_UPDATE,
-                #         SO_PRICE_RATIO
-                #     ], 
-                #     [
-                #         item["nextMinimumBidEur"],
-                #         item["nextMinimumBid"],
-                #         datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                #         price_ratio
-                #     ], 
-                #     [
-                #         SO_AUCTION_HASH, 
-                #         SO_ITEM_FULL_NAME
-                #     ], 
-                #     [
-                #         auction_hash, 
-                #         item_full_name
-                #     ])
-                seen_offers += 1
-                
-                # if price_ratio >= RATIO_MIN and real_price > PRICE_MIN:
-                #     buff_img = get_record(mycursor, BP_IMG, BUFF_PRICES, [BP_GOODS_ID], [goods_id])
-                #     send_webhook(MARKETPLACE_SKINBID, item_full_name, round(real_price,2), round(buff_price,2), price_ratio, sale_link, buff_img, lock_days, item["items"][0]["item"]["float"], goods_id)
-                    
+                seen_offers += 1 
                 continue
             else:
+                sale_link = skinbid_sale_link(auction_hash)
+                goods_id = get_record(mycursor, BUFFIDS_BUFF_ID, BUFFIDS, [BUFFIDS_ITEM_NAME], [item_full_name])
+                
+                real_price = float(item["nextMinimumBid"])
+                
+                # get buff price from database
+                item_price_from_fb = get_record(mycursor, BP_LOWEST_OFFER_PLN, BUFF_PRICES, [BP_GOODS_ID], [goods_id])
+                
+                # if item's buff price has not been scraped, that means item is not worth trying, skip :)
+                if item_price_from_fb:
+                    buff_price = float(item_price_from_fb)
+                else:
+                    print("No buff price for this item, skip")
+                    # save to database only to skip this offer next time
+                    db_add(db, mycursor, SKIN_OFFERS, [
+                        SO_AUCTION_HASH,
+                        SO_ITEM_FULL_NAME,
+                        SO_SALE_PRICE_PLN,
+                        SO_LAST_UPDATE,
+                        SO_SALE_LINK,
+                        SO_MARKETPLACE,
+                        SO_GOODS_ID
+                    ], 
+                    [
+                        auction_hash,
+                        item_full_name,
+                        real_price,
+                        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        sale_link,
+                        MARKETPLACE_SKINBID,
+                        goods_id
+                    ])
+                    continue
+                
+                # if buff_price == -1:
+                #     print(f"error getting buff price for: {item_full_name} | {goods_id}\nsleeping...")
+                #     time.sleep(sleep_random(2))
+                #     continue
+                
+                price_ratio = buff_price/real_price
+                
+                # SKINBID uses only P2P so no trade ban
+                trade_ban_end = ""
+                trade_banned = False
+                lock_days = 0
+                    
                 # save to database
                 db_add(db, mycursor, SKIN_OFFERS, [
                     SO_AUCTION_HASH,
@@ -137,14 +140,16 @@ def keep_scraping_newest():
     # make connection
     db, mycursor = db_connect()
     
+    counter = 0
     while True:
+        counter += 1
         seen_offers = 0
-        for i in range(0,30):
+        for i in range(0,5):
             if seen_offers > 5:
                 break
             else:
                 seen_offers += get_newest_offers_skinbid(db, mycursor, url_skinbid_newest(i))
-        print(f"Sleeping for {SKINBID_TIMEOUT} seconds...")
+        print(f"{counter}. Skinbid | Sleeping for {SKINBID_TIMEOUT} seconds...")
         time.sleep(sleep_random(SKINBID_TIMEOUT))
     
     # close connection

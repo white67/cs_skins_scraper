@@ -23,17 +23,46 @@ def get_newest_offers_skinport(db, mycursor, api_url):
         for item in response["items"]:
             
             sale_exist = check_if_exist(mycursor, SKIN_OFFERS, [SO_SALE_ID, SO_ITEM_FULL_NAME], [item["saleId"], item["marketHashName"]])
+             
+            # if offers already scraped, skip :)
+            if sale_exist:
+                seen_offers += 1
+                continue
             
             sale_link = skinport_sale_link(item["saleId"], item["url"])
             goods_id = get_record(mycursor, BUFFIDS_BUFF_ID, BUFFIDS, [BUFFIDS_ITEM_NAME], [item["marketHashName"]])
             
             real_price = float(item["salePrice"]) / 100
-            buff_price = get_buff_price(db, mycursor, goods_id)
             
-            if buff_price == -1:
-                print(f"error getting goods id: {item["marketHashName"]} | {goods_id}\nsleeping...")
-                time.sleep(sleep_random(5))
+            # get buff price from database
+            item_price_from_fb = get_record(mycursor, BP_LOWEST_OFFER_PLN, BUFF_PRICES, [BP_GOODS_ID], [goods_id])
+            
+            # if item's buff price has not been scraped, that means item is not worth trying, skip :)
+            if item_price_from_fb:
+                buff_price = float(item_price_from_fb)
+            else:
+                print("No buff price for this item, skip")
+                # save to database only to skip this offer next time
+                db_add(db, mycursor, SKIN_OFFERS, [
+                    SO_SALE_ID,
+                    SO_ITEM_FULL_NAME,
+                    SO_SALE_PRICE_PLN,
+                    SO_LAST_UPDATE,
+                    SO_SALE_LINK,
+                    SO_MARKETPLACE,
+                    SO_GOODS_ID
+                ], 
+                [
+                    item["saleId"],
+                    item["marketHashName"],
+                    real_price,
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    sale_link,
+                    MARKETPLACE_SKINPORT,
+                    goods_id
+                ])
                 continue
+            
             
             price_ratio = buff_price/real_price
             
@@ -43,76 +72,6 @@ def get_newest_offers_skinport(db, mycursor, api_url):
             else: 
                 trade_ban_end = datetime.strptime(item["lock"], '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%Y-%m-%d %H:%M:%S')
                 trade_banned = True
-             
-            if sale_exist:
-                if item["lock"] == None:
-                    db_update(db, mycursor, SKIN_OFFERS, [
-                            SO_SALE_PRICE,
-                            SO_SALE_CUR,
-                            SO_SALE_PRICE_PLN,
-                            SO_STATUS,
-                            SO_TRADE_BANNED,
-                            SO_LAST_UPDATE,
-                            SO_PRICE_RATIO
-                        ], 
-                        [
-                            real_price,
-                            item["currency"],
-                            real_price,
-                            item["saleStatus"],
-                            trade_banned,
-                            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                            price_ratio
-                        ], 
-                        [
-                            SO_SALE_ID, 
-                            SO_ITEM_FULL_NAME
-                        ], 
-                        [
-                            item["saleId"], 
-                            item["marketHashName"]
-                        ])
-                else:
-                    db_update(db, mycursor, SKIN_OFFERS, [
-                            SO_SALE_PRICE,
-                            SO_SALE_CUR,
-                            SO_SALE_PRICE_PLN,
-                            SO_STATUS,
-                            SO_TRADE_BANNED,
-                            SO_TRADE_BAN_END,
-                            SO_LAST_UPDATE,
-                            SO_PRICE_RATIO
-                        ], 
-                        [
-                            real_price,
-                            item["currency"],
-                            real_price,
-                            item["saleStatus"],
-                            trade_banned,
-                            trade_ban_end,
-                            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                            price_ratio
-                        ], 
-                        [
-                            SO_SALE_ID, 
-                            SO_ITEM_FULL_NAME
-                        ], 
-                        [
-                            item["saleId"], 
-                            item["marketHashName"]
-                        ])
-                seen_offers += 1
-                
-                # if price_ratio >= RATIO_MIN and real_price > PRICE_MIN:
-                #     buff_img = get_record(mycursor, BP_IMG, BUFF_PRICES, [BP_GOODS_ID], [goods_id])
-                    
-                #     if trade_ban_end != "":
-                #         lock_days = trade_ban_days(trade_ban_end)
-                #     else:
-                #         lock_days = 0
-                #     send_webhook("skinport", item["marketHashName"], round(real_price,2), round(buff_price,2), price_ratio, sale_link, buff_img, lock_days, item["wear"], goods_id)
-                    
-                continue
             
             if item["lock"] != None:
                 # save to database
@@ -259,14 +218,16 @@ def keep_scraping_newest():
     
     db, mycursor = db_connect()
     
+    counter = 0
     while True:
+        counter += 1
         seen_offers = 0
         for i in range(0,10):
             if seen_offers > 5:
                 break
             else:
                 seen_offers += get_newest_offers_skinport(db, mycursor, url_skinport_newest(i))
-        print(f"Sleeping for {SKINPORT_TIMEOUT} seconds...")
+        print(f"{counter}. Skinport | Sleeping for {SKINPORT_TIMEOUT} seconds...")
         time.sleep(sleep_random(SKINPORT_TIMEOUT))
     
     # close connection

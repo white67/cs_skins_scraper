@@ -59,6 +59,7 @@ SO_SALE_LINK = "sale_link"
 SO_GOODS_ID = "goods_id"
 SO_AUCTION_HASH = "auction_hash"
 SO_IMAGE_URL = "image_url"
+SO_LOCK_DAYS = "lock_days"
 
 
 # connect with database
@@ -88,7 +89,7 @@ def db_add(db, cursor, table_name, columns, data):
         query = f"""INSERT INTO {table_name} ({columns_str}) VALUES ({placeholders});"""
         cursor.execute(query, data)
         db.commit() 
-        print(f"[{table_name}] Insertion successful!")
+        print(f"[{table_name}] INSERT success")
     except mysql.connector.Error as err:
         print("Error:", err)
         db.rollback()  # Rollback the transaction if an error occurs
@@ -122,7 +123,7 @@ def db_update(db, cursor, table_name, columns, data, columns_to_check, data_to_c
             update_query = (f"UPDATE {table_name} SET {updated_str}{where_clause};")
             cursor.execute(update_query, updated_data)
             db.commit()
-            print(f"[{table_name}] Entry updated successfully.")
+            print(f"[{table_name}] UPDATE success")
         else:
             print(f"[{table_name}] Entry does not exist: {data_to_check}")
     except mysql.connector.Error as err:

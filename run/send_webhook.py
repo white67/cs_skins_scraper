@@ -9,9 +9,14 @@ def send_webhook(marketplace, item_name, sale_price, buff_price, price_ratio, of
         wear = round(wear,5)
     
     if marketplace == "skinport":
+        custom_color = "cf6223"
         webhook_url = WEBHOOK_SKINPORT_URL
     elif marketplace == "skinbid":
+        custom_color = "5ea314"
         webhook_url = WEBHOOK_SKINBID_URL
+    elif marketplace == "dmarket":
+        custom_color = "16d9ab"
+        webhook_url = WEBHOOK_DMARKET_URL
         
     webhook = DiscordWebhook(url=webhook_url, rate_limit_retry=True)
     
@@ -19,7 +24,7 @@ def send_webhook(marketplace, item_name, sale_price, buff_price, price_ratio, of
     embed = DiscordEmbed(
         title=item_name,
         url=offer_url,
-        color="fca903"
+        color=custom_color
     )
     
     # set thumbnail
@@ -36,6 +41,11 @@ def send_webhook(marketplace, item_name, sale_price, buff_price, price_ratio, of
             embed.set_footer(text=f"{trade_lock} days | {wear}")
     elif marketplace == "skinbid":
         embed.set_footer(text=f"{wear}")
+    elif marketplace == "dmarket":
+        if trade_lock == 0:
+            embed.set_footer(text=f"No trade ban | {wear}")
+        else:
+            embed.set_footer(text=f"{trade_lock} days | {wear}")
     
     embed.add_embed_field(name="Sale price", value=f"{sale_price}zł")
     embed.add_embed_field(name="Buff price", value=f"{buff_price}zł")

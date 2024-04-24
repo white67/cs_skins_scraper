@@ -7,16 +7,19 @@ from datetime import datetime, timedelta, timezone
 
 
 
-CNY_PLN = 0.562
-API_TIMEOUT = 1 # seconds
+CNY_PLN = 0.556
+USD_PLN = 4.03
+API_TIMEOUT = 2 # seconds
 SKINPORT_TIMEOUT = 8 # seconds
 SKINBID_TIMEOUT = 8 # seconds
-RATIO_MIN = 1.09
+DMARKET_TIMEOUT = 8 # seconds
+SKINBID_TIMEOUT_PAGE = 4 # seconds
+RATIO_MIN = 1.08
 PRICE_MIN = 27 # CHANGE also in config specific urls e.g. &pricegt=703
 
 
 def sleep_random(time):
-    return random.randint(time*88, time*112)/100
+    return random.randint(time*66, time*88)/100
 
 
 # read json file
