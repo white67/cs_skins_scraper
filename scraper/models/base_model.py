@@ -26,8 +26,58 @@ class Listing(BaseModel):
     item_collection: Optional[str] = None
     price: float
     price_currency: str
+    listing_id: int
     listing_url: str
     listing_timestamp: int
     
     # class Config:
     #     orm_mode = True  # Enable ORM mode for SQLAlchemy compatibility
+    
+    # Convert the Listing object's attributes to a dictionary
+    def to_dict(self):
+        # Convert the model instance to a dictionary without first key
+        return {
+            key: value for key, value in self.__dict__.items() if key != 'id'
+        }
+        
+    
+    # Generate the INSERT query dynamically based on the attributes of the class
+    def generate_insert_query(self):
+        # Get the column names from the object's attributes
+        dict_attributes = self.to_dict()
+        columns = ', '.join(dict_attributes.keys())
+        values = ', '.join(['%s'] * len(dict_attributes))
+
+        # Create the INSERT query
+        insert_query = f"INSERT INTO listings ({columns}) VALUES ({values})"
+        return insert_query
+    
+    def to_db_tuple(self):
+        """
+        Convert the model instance to a tuple for database insertion.
+        """
+        return (
+            self.item_name,
+            self.market_hash_name,
+            self.item_type,
+            self.item_type_category,
+            self.def_index,
+            self.paint_index,
+            self.paint_seed,
+            self.float_value,
+            self.icon_url,
+            self.is_stattrak,
+            self.is_souvenir,
+            self.rarity,
+            self.wear,
+            self.tradable,
+            self.trade_ban_days,
+            self.inspect_link,
+            self.item_description,
+            self.item_collection,
+            self.price,
+            self.price_currency,
+            self.listing_id,
+            self.listing_url,
+            self.listing_timestamp
+        )

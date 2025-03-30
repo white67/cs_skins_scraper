@@ -26,6 +26,7 @@ class ListingCSFLOAT(Listing):
     item_type: str
     item_description: Optional[str] = None
     item_collection: Optional[str] = None
+    listing_id: int
     
     def __init__(self, listing: dict) -> None:
         item = listing["item"]
@@ -55,31 +56,12 @@ class ListingCSFLOAT(Listing):
             "tradable": True,  # Assuming all items are tradable on CSFLOAT
             "trade_ban_days": 0,  # Assuming no trade ban days for CSFLOAT
             "price_currency": "USD",  # Assuming USD for CSFLOAT
+            "listing_id": listing.get("id", None),
             "listing_url": CSFLOAT_LISTING_URL + listing['id'],  # Construct URL if needed
             "listing_timestamp": int(datetime.datetime.strptime(listing["created_at"], "%Y-%m-%dT%H:%M:%S.%fZ").timestamp())
         }
         
         super().__init__(**data)
-            
-        # self.market_hash_name = item["market_hash_name"]
-        # self.item_name = item["item_name"]
-        # self.created_at = listing["created_at"]
-        # self.price = listing["price"]
-        # self.listing_id = listing["id"]
-        # self.asset_id = item["asset_id"]
-        # self.def_index = item["def_index"]
-        # self.paint_index = item["paint_index"]
-        # self.paint_seed = item["paint_seed"]
-        # self.float_value = item["float_value"]
-        # self.icon_url = item["icon_url"]
-        # self.is_stattrak = item["is_stattrak"]
-        # self.is_souvenir = item["is_souvenir"]
-        # self.rarity = item["rarity_name"]
-        # self.wear = item["wear_name"]
-        # self.inspect_link = item["inspect_link"]
-        # self.item_type = item["type_name"]
-        # self.item_description = item["description"]
-        # self.item_collection = item["collection"]
         
     def map_to_base(self) -> Listing:
         return Listing(
@@ -103,6 +85,7 @@ class ListingCSFLOAT(Listing):
             item_collection=self.item_collection,
             price=float(self.price) / 100,  # Convert price to float, XYZ ~ X.YZ USD
             price_currency="USD",  # Assuming USD for CSFLOAT
+            listing_id=self.listing_id,
             listing_url=self.listing_url,
             listing_timestamp=self.listing_timestamp
         )
