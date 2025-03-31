@@ -1,3 +1,6 @@
+CREATE DATABASE scraper_db;
+
+-- Create the listings table if it doesn't exist
 CREATE TABLE IF NOT EXISTS listings (
     id SERIAL PRIMARY KEY,
     item_name TEXT NOT NULL,
@@ -22,5 +25,6 @@ CREATE TABLE IF NOT EXISTS listings (
     price_currency TEXT NOT NULL,
     listing_id BIGINT NOT NULL,
     listing_url TEXT NOT NULL,
-    listing_timestamp BIGINT NOT NULL
+    listing_timestamp BIGINT NOT NULL,
+    marketplace TEXT NOT NULL
 );
