@@ -29,18 +29,15 @@ class Listing(BaseModel):
     listing_id: int
     listing_url: str
     listing_timestamp: int
-    
-    # class Config:
-    #     orm_mode = True  # Enable ORM mode for SQLAlchemy compatibility
+    marketplace: str
     
     # Convert the Listing object's attributes to a dictionary
     def to_dict(self):
-        # Convert the model instance to a dictionary without first key
+        # without the first key
         return {
             key: value for key, value in self.__dict__.items() if key != 'id'
         }
         
-    
     # Generate the INSERT query dynamically based on the attributes of the class
     def generate_insert_query(self):
         # Get the column names from the object's attributes
@@ -79,5 +76,6 @@ class Listing(BaseModel):
             self.price_currency,
             self.listing_id,
             self.listing_url,
-            self.listing_timestamp
+            self.listing_timestamp,
+            self.marketplace
         )

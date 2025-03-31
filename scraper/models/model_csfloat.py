@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional
 from .base_model import Listing
-from config import CSFLOAT_LISTING_URL
+from scraper.config import CSFLOAT_LISTING_URL, CSFLOAT_MARKETPLACE
 
 class ListingCSFLOAT(Listing):
     """
@@ -11,7 +11,6 @@ class ListingCSFLOAT(Listing):
     item_name: str
     created_at: str
     price: int
-    listing_id: str
     asset_id: Optional[int] = None
     def_index: Optional[int] = None
     paint_index: Optional[int] = None
@@ -27,6 +26,7 @@ class ListingCSFLOAT(Listing):
     item_description: Optional[str] = None
     item_collection: Optional[str] = None
     listing_id: int
+    marketplace: str
     
     def __init__(self, listing: dict) -> None:
         item = listing["item"]
@@ -37,7 +37,6 @@ class ListingCSFLOAT(Listing):
             "item_name": item.get("item_name", None),
             "created_at": listing.get("created_at", None),
             "price": listing.get("price", None),
-            "listing_id": listing.get("id", None),
             "asset_id": item.get("asset_id", None),
             "def_index": item.get("def_index", None),
             "paint_index": item.get("paint_index", None),
@@ -57,11 +56,18 @@ class ListingCSFLOAT(Listing):
             "trade_ban_days": 0,  # Assuming no trade ban days for CSFLOAT
             "price_currency": "USD",  # Assuming USD for CSFLOAT
             "listing_id": listing.get("id", None),
-            "listing_url": CSFLOAT_LISTING_URL + listing['id'],  # Construct URL if needed
-            "listing_timestamp": int(datetime.datetime.strptime(listing["created_at"], "%Y-%m-%dT%H:%M:%S.%fZ").timestamp())
+            "listing_url": self.get_listing_url(listing.get("id", None)),  # Construct URL if needed
+            "listing_timestamp": self.get_listing_timestamp(listing["created_at"]),
+            "marketplace": CSFLOAT_MARKETPLACE
         }
         
         super().__init__(**data)
+    
+    def get_listing_url(self, listing_id) -> str:
+        return f"{CSFLOAT_LISTING_URL}{listing_id}"
+    
+    def get_listing_timestamp(self, created_at) -> int:
+        return int(datetime.datetime.strptime(created_at, "%Y-%m-%dT%H:%M:%S.%fZ").timestamp())
         
     def map_to_base(self) -> Listing:
         return Listing(
@@ -87,5 +93,6 @@ class ListingCSFLOAT(Listing):
             price_currency="USD",  # Assuming USD for CSFLOAT
             listing_id=self.listing_id,
             listing_url=self.listing_url,
-            listing_timestamp=self.listing_timestamp
+            listing_timestamp=self.listing_timestamp,
+            marketplace=self.marketplace
         )

@@ -2,11 +2,10 @@
 import os
 from dotenv import load_dotenv
 import time
-import json
 import random
 import requests
 import psycopg2
-from models.base_model import Listing
+from scraper.models.base_model import Listing
 
 # Load environment variables from .env file
 load_dotenv()
@@ -44,7 +43,7 @@ class BaseScraper:
             DB_USER = os.getenv("POSTGRES_USER")
             DB_PASSWORD = os.getenv("POSTGRES_PASSWORD")
             
-            # Connect to your PostgreSQL database
+            # Connect to PostgreSQL database
             conn = psycopg2.connect(
                 dbname=DB_NAME,
                 user=DB_USER,
@@ -59,9 +58,6 @@ class BaseScraper:
             
             # Prepare the data to insert
             data = listing.to_db_tuple()
-            
-            # print("Insert_query:", insert_query)
-            # print("Data:", data)
             
             # Execute the query
             cursor.execute(insert_query, data)

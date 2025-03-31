@@ -3,10 +3,15 @@ import os
 
 load_dotenv()
 
-CSFLOAT_API_URL = "https://csfloat.com/api/v1/listings?limit=50&sort_by=most_recent"
-
+# Scraper configuration - CSFLOAT
 CSFLOAT_HEADERS = {
     'Authorization': os.getenv('CSFLOAT_API_KEY')
 }
+CSFLOAT_MARKETPLACE = "CSFLOAT" # Marketplace name
+CSFLOAT_API_URL = "https://csfloat.com/api/v1/listings?limit=50&sort_by=most_recent" # API URL for CSFLOAT newest listings
+CSFLOAT_LISTING_URL = "https://csfloat.com/item/" # Base URL for CSFLOAT listings
+CSFLOAT_LIMIT = 50 # Number of listings to scrape at once (maximum)
+CSFLOAT_SCRAPE_INTERVAL = 21  # seconds
 
-CSFLOAT_LISTING_URL = "https://csfloat.com/item/"
+# Backend API configuration
+API_URL = "http://localhost:8080/api/listings"
