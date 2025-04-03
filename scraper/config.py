@@ -13,5 +13,14 @@ CSFLOAT_LISTING_URL = "https://csfloat.com/item/" # Base URL for CSFLOAT listing
 CSFLOAT_LIMIT = 50 # Number of listings to scrape at once (maximum)
 CSFLOAT_SCRAPE_INTERVAL = 21  # seconds
 
+# Scraper configuration - SKINPORT
+SKINPORT_HEADERS = {
+    'Cookie': os.getenv('SKINPORT_COOKIE')
+}
+SKINPORT_MARKETPLACE = "SKINPORT" # Marketplace name
+SKINPORT_API_URL = "https://skinport.com/api/browse/730?sort=date&order=desc"
+SKINPORT_LISTING_URL = "https://skinport.com/item/" # Base URL for SKINPORT listings
+CSFLOAT_SCRAPE_INTERVAL = 21  # seconds
+
 # Backend API configuration
 API_URL = "http://localhost:8080/api/listings"
