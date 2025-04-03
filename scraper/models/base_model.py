@@ -20,7 +20,7 @@ class Listing(BaseModel):
     rarity: Optional[str] = None
     wear: Optional[str] = None
     tradable: bool
-    trade_ban_days: Optional[int] = None
+    lock_timestamp: Optional[int] = None
     inspect_link: Optional[str] = None
     item_description: Optional[str] = None
     item_collection: Optional[str] = None
@@ -68,7 +68,7 @@ class Listing(BaseModel):
             self.rarity,
             self.wear,
             self.tradable,
-            self.trade_ban_days,
+            self.lock_timestamp,
             self.inspect_link,
             self.item_description,
             self.item_collection,

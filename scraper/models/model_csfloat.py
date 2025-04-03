@@ -26,6 +26,7 @@ class ListingCSFLOAT(Listing):
     item_description: Optional[str] = None
     item_collection: Optional[str] = None
     listing_id: int
+    listing_url: str
     marketplace: str
     
     def __init__(self, listing: dict) -> None:
@@ -53,7 +54,6 @@ class ListingCSFLOAT(Listing):
             "item_collection": item.get("collection", None),
             "item_type_category": None,
             "tradable": True,  # Assuming all items are tradable on CSFLOAT
-            "trade_ban_days": 0,  # Assuming no trade ban days for CSFLOAT
             "price_currency": "USD",  # Assuming USD for CSFLOAT
             "listing_id": listing.get("id", None),
             "listing_url": self.get_listing_url(listing.get("id", None)),  # Construct URL if needed
@@ -85,7 +85,7 @@ class ListingCSFLOAT(Listing):
             rarity=self.rarity,
             wear=self.wear,
             tradable=True,  # Assuming all items are tradable on CSFLOAT
-            trade_ban_days=0,  # Assuming no trade ban days for CSFLOAT
+            lock_timestamp=None,  # Assuming no trade ban days for CSFLOAT
             inspect_link=self.inspect_link,
             item_description=self.item_description,
             item_collection=self.item_collection,
