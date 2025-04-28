@@ -24,10 +24,12 @@ interface Listing {
   itemCollection: string | null;
   price: number;
   priceCurrency: string;
+  price_currency_symbol: string;
   listingId: number;
   listingUrl: string;
   listingTimestamp: number;
   marketplace: string;
+  status: string;
 }
 
 const ListingsPage = () => {
@@ -60,10 +62,12 @@ const ListingsPage = () => {
         itemCollection: data.item_collection,
         price: data.price,
         priceCurrency: data.price_currency,
+        price_currency_symbol: data.price_currency_symbol,
         listingId: data.listing_id,
         listingUrl: data.listing_url,
         listingTimestamp: data.listing_timestamp,
         marketplace: data.marketplace,
+        status: data.status,
       };
       setListings((prevListings) => {
         const updatedListings = [newListing, ...prevListings]; // Add new item at the beginning
@@ -125,6 +129,7 @@ const ListingsPage = () => {
                 itemName={item.itemName}
                 marketplaceName={item.marketplace}
                 price={item.price}
+                currencySymbol={item.price_currency_symbol}
                 floatValue={item.floatValue}
                 rarity={item.rarity}
                 wear={item.wear}

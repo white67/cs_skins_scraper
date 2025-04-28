@@ -8,6 +8,7 @@ interface ItemProps {
   itemName: string;
   marketplaceName: string;
   price: number | string;
+  currencySymbol: string;
   floatValue: number | null;
   wear: string | null;
   rarity: string;
@@ -64,6 +65,7 @@ const ItemCard: React.FC<ItemProps> = ({
   itemName,
   marketplaceName,
   price,
+  currencySymbol,
   floatValue,
   wear,
   rarity,
@@ -194,7 +196,7 @@ const ItemCard: React.FC<ItemProps> = ({
             mb="xs"
             style={{ color: "#fff", fontSize: "clamp(1.3rem, 2vw, 1.5rem)" }}
           >
-            ${price}
+            {currencySymbol}{price}
           </Text>
         </div>
 
