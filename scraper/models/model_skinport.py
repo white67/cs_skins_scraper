@@ -2,6 +2,7 @@ import datetime
 from typing import Optional
 from .base_model import Listing
 from scraper.config import SKINPORT_LISTING_URL, SKINPORT_MARKETPLACE
+from scraper.utils import convert_currency_str_to_symbol
 
 class ListingSKINPORT(Listing):
     """
@@ -12,6 +13,7 @@ class ListingSKINPORT(Listing):
     created_at: Optional[str] = None
     price: int
     price_currency: str
+    price_currency_symbol: str
     asset_id: Optional[int] = None
     def_index: Optional[int] = None
     paint_index: Optional[int] = None
@@ -33,14 +35,21 @@ class ListingSKINPORT(Listing):
     listing_url: str
     listing_timestamp: int
     marketplace: str
+    status: str
     
     def __init__(self, listing: dict) -> None:
         
-        # Prepare data for the parent class
-        data = {
+        # W przypadku braku 'created_at', przypisujemy bieżący czas
+        created_at = listing.get("created_at", str(int(datetime.datetime.now().timestamp())))
+
+        # W przypadku 'lock' konwertujemy Timestamp na integer (sekundy)
+        lock_timestamp = self.get_lock_timestamp(listing.get("lock"))
+        
+        # Prepare data for the parent class (WEBSOCKET)
+        data_ws = {
             "market_hash_name": listing.get("marketHashName", None),
             "item_name": self.get_item_name(listing.get("title", None), listing.get("name", None)),
-            "created_at": listing.get("created_at", None), # None
+            "created_at": created_at, # None
             "price": listing.get("salePrice", None), # random currency
             "asset_id": listing.get("assetid", None),
             "def_index": listing.get("itemId", None), # no idea
@@ -60,31 +69,37 @@ class ListingSKINPORT(Listing):
             "tradable": self.get_tradable(listing.get("lock", None)),  # Assuming all items are tradable on CSFLOAT
             "lock_timestamp": self.get_lock_timestamp(listing.get("lock", None)),
             "price_currency": listing.get("currency", None),
+            "price_currency_symbol": convert_currency_str_to_symbol(listing.get("currency", None)),
             "listing_id": listing.get("saleId", None),
             "listing_url": self.get_listing_url(listing.get("url", None), listing.get("saleId", None)),  # Construct URL if needed
             "listing_timestamp": self.get_listing_timestamp(),
-            "marketplace": SKINPORT_MARKETPLACE
+            "marketplace": SKINPORT_MARKETPLACE,
+            "status": listing.get("saleStatus", None)
         }
         
-        super().__init__(**data)
+        super().__init__(**data_ws)
     
     def get_item_name(self, title, name) -> str:
         return f"{title} | {name}"
     
     def get_listing_url(self, url, saleId) -> str:
-        return f"{SKINPORT_LISTING_URL}{url}{saleId}"
+        return f"{SKINPORT_LISTING_URL}{url}/{saleId}"
     
     def get_tradable(self, lock) -> bool:
-        if lock is None:
+        if lock is None or lock == "None":
             return False
         else:
             return True
     
     def get_lock_timestamp(self, lock_timestamp) -> int:
-        if lock_timestamp is None:
+        if lock_timestamp is None or lock_timestamp == "None":
             return None
         else:
-            return int(datetime.datetime.strptime(lock_timestamp, "%Y-%m-%dT%H:%M:%S.%fZ").timestamp())
+            # convert to int datetime timestamp from string "Timestamp(seconds=1746169200, nanoseconds=0)"
+            
+            lock_timestamp = int(lock_timestamp.split(",")[0].split("=")[1].strip())
+            
+            #return int(datetime.datetime.strptime(lock_timestamp, "%Y-%m-%dT%H:%M:%S.%fZ").timestamp())
     
     def get_listing_timestamp(self) -> int:
         return int(datetime.datetime.now().timestamp())
@@ -109,10 +124,12 @@ class ListingSKINPORT(Listing):
             inspect_link=self.inspect_link,
             item_description=self.item_description,
             item_collection=self.item_collection,
-            price=self.price,
+            price=float(self.price) / 100,
             price_currency=self.price_currency,
+            price_currency_symbol=self.price_currency_symbol,
             listing_id=self.listing_id,
             listing_url=self.listing_url,
             listing_timestamp=self.listing_timestamp,
-            marketplace=self.marketplace
+            marketplace=self.marketplace,
+            status=self.status
         )
