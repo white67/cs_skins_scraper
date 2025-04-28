@@ -1,10 +1,11 @@
-# base scrape logic to scrape data from marketplaces
 import os
-from dotenv import load_dotenv
 import time
 import random
 import requests
 import psycopg2
+
+from dotenv import load_dotenv
+
 from scraper.models.base_model import Listing
 
 # Load environment variables from .env file
@@ -19,6 +20,10 @@ class BaseScraper:
         self.api_url = api_url
 
     def fetch_data(self, endpoint, headers={}):
+        """
+        Fetch data from the API endpoint.
+        """
+        
         url = f"{self.api_url}{endpoint}"
         print(f"Fetching data from {url}")
         try:
@@ -30,13 +35,18 @@ class BaseScraper:
             return None
     
     def sleep_random(self):
+        """
+        Sleep for a random time between 8 and 12 seconds.
+        """
         time.sleep(random.uniform(8, 12))
     
     def insert_listing_to_db(self, listing: Listing):
         """
         Inserts a single listing into the PostgreSQL database.
         """
+        
         try:
+            # Load environment variables
             DB_HOST = os.getenv("DB_HOST")
             DB_PORT = os.getenv("DB_PORT")
             DB_NAME = os.getenv("DB_NAME")
