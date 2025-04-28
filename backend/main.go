@@ -22,31 +22,32 @@ var upgrader = websocket.Upgrader{
 
 // Listing struct to map to the database
 type Listing struct {
-	ItemName         string   `json:"item_name"`
-	MarketHashName   string   `json:"market_hash_name"`
-	ItemType         string   `json:"item_type"`
-	ItemTypeCategory *string  `json:"item_type_category"`
-	DefIndex         *int     `json:"def_index"`
-	PaintIndex       *int     `json:"paint_index"`
-	PaintSeed        *int     `json:"paint_seed"`
-	FloatValue       *float64 `json:"float_value"`
-	IconUrl          string   `json:"icon_url"`
-	IsStatTrak       *bool    `json:"is_stattrak"`
-	IsSouvenir       *bool    `json:"is_souvenir"`
-	Rarity           *string  `json:"rarity"`
-	Wear             *string  `json:"wear"`
-	Tradable         bool     `json:"tradable"`
-	TradeBanDays     *int     `json:"trade_ban_days"`
-	InspectLink      *string  `json:"inspect_link"`
-	ItemDescription  *string  `json:"item_description"`
-	ItemCollection   *string  `json:"item_collection"`
-	Price            float64  `json:"price"`
-	PriceCurrency    string   `json:"price_currency"`
-	ListingID        int64    `json:"listing_id"`
-	ListingURL       string   `json:"listing_url"`
-	ListingTimestamp int64    `json:"listing_timestamp"`
-	Marketplace      string   `json:"marketplace"`
-	ID               int64    `json:"id"` // ID field
+	ItemName            string   `json:"item_name"`
+	MarketHashName      string   `json:"market_hash_name"`
+	ItemType            string   `json:"item_type"`
+	ItemTypeCategory    *string  `json:"item_type_category"`
+	DefIndex            *int     `json:"def_index"`
+	PaintIndex          *int     `json:"paint_index"`
+	PaintSeed           *int     `json:"paint_seed"`
+	FloatValue          *float64 `json:"float_value"`
+	IconUrl             string   `json:"icon_url"`
+	IsStatTrak          *bool    `json:"is_stattrak"`
+	IsSouvenir          *bool    `json:"is_souvenir"`
+	Rarity              *string  `json:"rarity"`
+	Wear                *string  `json:"wear"`
+	Tradable            bool     `json:"tradable"`
+	TradeBanDays        *int     `json:"trade_ban_days"`
+	InspectLink         *string  `json:"inspect_link"`
+	ItemDescription     *string  `json:"item_description"`
+	ItemCollection      *string  `json:"item_collection"`
+	Price               float64  `json:"price"`
+	PriceCurrency       string   `json:"price_currency"`
+	PriceCurrencySymbol string   `json:"price_currency_symbol"`
+	ListingID           int64    `json:"listing_id"`
+	ListingURL          string   `json:"listing_url"`
+	ListingTimestamp    int64    `json:"listing_timestamp"`
+	Marketplace         string   `json:"marketplace"`
+	ID                  int64    `json:"id"` // ID field
 }
 
 // WebSocket handler
@@ -170,6 +171,7 @@ func getListings(c *gin.Context) {
 			&listing.ItemCollection,
 			&listing.Price,
 			&listing.PriceCurrency,
+			&listing.PriceCurrencySymbol,
 			&listing.ListingURL,
 			&listing.ListingTimestamp,
 			&listing.ListingID,
