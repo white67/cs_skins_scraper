@@ -26,10 +26,12 @@ class Listing(BaseModel):
     item_collection: Optional[str] = None
     price: float
     price_currency: str
+    price_currency_symbol: str
     listing_id: int
     listing_url: str
     listing_timestamp: int
     marketplace: str
+    status: str = "listed"  # Default status is 'listed'
     
     # Convert the Listing object's attributes to a dictionary
     def to_dict(self):
@@ -74,8 +76,10 @@ class Listing(BaseModel):
             self.item_collection,
             self.price,
             self.price_currency,
+            self.price_currency_symbol,
             self.listing_id,
             self.listing_url,
             self.listing_timestamp,
-            self.marketplace
+            self.marketplace,
+            self.status
         )

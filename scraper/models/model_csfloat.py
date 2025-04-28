@@ -2,6 +2,7 @@ import datetime
 from typing import Optional
 from .base_model import Listing
 from scraper.config import CSFLOAT_LISTING_URL, CSFLOAT_MARKETPLACE
+from scraper.utils import convert_currency_str_to_symbol
 
 class ListingCSFLOAT(Listing):
     """
@@ -11,6 +12,8 @@ class ListingCSFLOAT(Listing):
     item_name: str
     created_at: str
     price: int
+    price_currency: str = "USD"  # Assuming USD for CSFLOAT
+    price_currency_symbol: Optional[str] = "$"  # Assuming $ for CSFLOAT
     asset_id: Optional[int] = None
     def_index: Optional[int] = None
     paint_index: Optional[int] = None
@@ -28,6 +31,7 @@ class ListingCSFLOAT(Listing):
     listing_id: int
     listing_url: str
     marketplace: str
+    status: str = "listed"  # Default status is 'listed'
     
     def __init__(self, listing: dict) -> None:
         item = listing["item"]
@@ -55,6 +59,7 @@ class ListingCSFLOAT(Listing):
             "item_type_category": None,
             "tradable": True,  # Assuming all items are tradable on CSFLOAT
             "price_currency": "USD",  # Assuming USD for CSFLOAT
+            "price_currency_symbol": convert_currency_str_to_symbol("USD"),  # Convert to symbol
             "listing_id": listing.get("id", None),
             "listing_url": self.get_listing_url(listing.get("id", None)),  # Construct URL if needed
             "listing_timestamp": self.get_listing_timestamp(listing["created_at"]),
@@ -90,9 +95,11 @@ class ListingCSFLOAT(Listing):
             item_description=self.item_description,
             item_collection=self.item_collection,
             price=float(self.price) / 100,  # Convert price to float, XYZ ~ X.YZ USD
-            price_currency="USD",  # Assuming USD for CSFLOAT
+            price_currency=self.price_currency,
+            price_currency_symbol=self.price_currency_symbol,
             listing_id=self.listing_id,
             listing_url=self.listing_url,
             listing_timestamp=self.listing_timestamp,
-            marketplace=self.marketplace
+            marketplace=self.marketplace,
+            status=self.status
         )
