@@ -6,3 +6,5 @@ venv/
 .env
 .vscode/
 scraper/0LD_STUFF
+scraper/logs
+scraper/data
