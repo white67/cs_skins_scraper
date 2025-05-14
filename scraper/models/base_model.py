@@ -27,7 +27,7 @@ class Listing(BaseModel):
     price: float
     price_currency: str
     price_currency_symbol: str
-    listing_id: int
+    listing_id: str
     listing_url: str
     listing_timestamp: int
     marketplace: str

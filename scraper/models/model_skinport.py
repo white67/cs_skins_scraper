@@ -2,6 +2,7 @@ import datetime
 from typing import Optional
 from .base_model import Listing
 from scraper.config import SKINPORT_LISTING_URL, SKINPORT_MARKETPLACE
+from scraper.config import STEAM_ICON_URL
 from scraper.utils import convert_currency_str_to_symbol
 
 class ListingSKINPORT(Listing):
@@ -31,7 +32,7 @@ class ListingSKINPORT(Listing):
     item_description: Optional[str] = None
     item_collection: Optional[str] = None
     item_type_category: Optional[str] = None
-    listing_id: int
+    listing_id: str
     listing_url: str
     listing_timestamp: int
     marketplace: str
@@ -39,10 +40,7 @@ class ListingSKINPORT(Listing):
     
     def __init__(self, listing: dict) -> None:
         
-        # W przypadku braku 'created_at', przypisujemy bieżący czas
         created_at = listing.get("created_at", str(int(datetime.datetime.now().timestamp())))
-
-        # W przypadku 'lock' konwertujemy Timestamp na integer (sekundy)
         lock_timestamp = self.get_lock_timestamp(listing.get("lock"))
         
         # Prepare data for the parent class (WEBSOCKET)
@@ -56,7 +54,7 @@ class ListingSKINPORT(Listing):
             "paint_index": listing.get("finish", None), # no idea
             "paint_seed": listing.get("pattern", None), # pattern
             "float_value": listing.get("wear", None),
-            "icon_url": listing.get("image", None),
+            "icon_url": self.generate_steam_icon_url(listing.get("image", None)),
             "is_stattrak": listing.get("stattrak", False),
             "is_souvenir": listing.get("souvenir", False),
             "rarity": listing.get("rarity", None),
@@ -70,7 +68,7 @@ class ListingSKINPORT(Listing):
             "lock_timestamp": self.get_lock_timestamp(listing.get("lock", None)),
             "price_currency": listing.get("currency", None),
             "price_currency_symbol": convert_currency_str_to_symbol(listing.get("currency", None)),
-            "listing_id": listing.get("saleId", None),
+            "listing_id": str(listing.get("saleId", None)),
             "listing_url": self.get_listing_url(listing.get("url", None), listing.get("saleId", None)),  # Construct URL if needed
             "listing_timestamp": self.get_listing_timestamp(),
             "marketplace": SKINPORT_MARKETPLACE,
@@ -80,10 +78,13 @@ class ListingSKINPORT(Listing):
         super().__init__(**data_ws)
     
     def get_item_name(self, title, name) -> str:
-        return f"{title} | {name}"
+        return f"{title.replace('StatTrak™', '').strip()} | {name}"
     
     def get_listing_url(self, url, saleId) -> str:
         return f"{SKINPORT_LISTING_URL}{url}/{saleId}"
+    
+    def generate_steam_icon_url(self, icon_url) -> str:
+        return f"{STEAM_ICON_URL}{icon_url}" if icon_url else None
     
     def get_tradable(self, lock) -> bool:
         if lock is None or lock == "None":

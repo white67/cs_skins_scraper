@@ -2,6 +2,7 @@ import datetime
 from typing import Optional
 from .base_model import Listing
 from scraper.config import CSFLOAT_LISTING_URL, CSFLOAT_MARKETPLACE
+from scraper.config import STEAM_ICON_URL
 from scraper.utils import convert_currency_str_to_symbol
 
 class ListingCSFLOAT(Listing):
@@ -28,7 +29,7 @@ class ListingCSFLOAT(Listing):
     item_type: str
     item_description: Optional[str] = None
     item_collection: Optional[str] = None
-    listing_id: int
+    listing_id: str
     listing_url: str
     marketplace: str
     status: str = "listed"  # Default status is 'listed'
@@ -47,7 +48,7 @@ class ListingCSFLOAT(Listing):
             "paint_index": item.get("paint_index", None),
             "paint_seed": item.get("paint_seed", None),
             "float_value": item.get("float_value", None),
-            "icon_url": item.get("icon_url", None),
+            "icon_url": self.generate_steam_icon_url(item.get("icon_url", None)),
             "is_stattrak": item.get("is_stattrak", False),
             "is_souvenir": item.get("is_souvenir", False),
             "rarity": item.get("rarity_name", None),
@@ -60,13 +61,16 @@ class ListingCSFLOAT(Listing):
             "tradable": True,  # Assuming all items are tradable on CSFLOAT
             "price_currency": "USD",  # Assuming USD for CSFLOAT
             "price_currency_symbol": convert_currency_str_to_symbol("USD"),  # Convert to symbol
-            "listing_id": listing.get("id", None),
+            "listing_id": str(listing.get("id", None)),
             "listing_url": self.get_listing_url(listing.get("id", None)),  # Construct URL if needed
             "listing_timestamp": self.get_listing_timestamp(listing["created_at"]),
             "marketplace": CSFLOAT_MARKETPLACE
         }
         
         super().__init__(**data)
+    
+    def generate_steam_icon_url(self, icon_url) -> str:
+        return f"{STEAM_ICON_URL}{icon_url}"
     
     def get_listing_url(self, listing_id) -> str:
         return f"{CSFLOAT_LISTING_URL}{listing_id}"
