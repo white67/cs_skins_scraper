@@ -66,7 +66,7 @@ class SKINPORTScraperWS:
                 listing = ListingSKINPORT(el).map_to_base().to_dict()
                 new_listings.append(listing)
             
-            self.logger.info(f"New_listings: {new_listings}")
+            # self.logger.info(f"New_listings: {new_listings}")
             
             response = requests.post(BACKEND_API_URL, json=new_listings)
             if response.status_code == 201:
