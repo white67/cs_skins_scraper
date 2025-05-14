@@ -18,9 +18,9 @@ interface ItemProps {
 }
 
 // Function to generate a valid image URL
-const getValidImageUrl = (url: string) => {
-  return "https://steamcommunity-a.akamaihd.net/economy/image/" + url;
-};
+// const getValidImageUrl = (url: string) => {
+//   return "https://steamcommunity-a.akamaihd.net/economy/image/" + url;
+// };
 
 // Function to return a gradient color based on rarity
 const getGradientColor = (str: string) => {
@@ -40,6 +40,19 @@ const getGradientColor = (str: string) => {
     return "rgb(228, 174, 57)";
   } else {
     return "rgb(94, 91, 86)";
+  }
+};
+
+// Function to return a color for different marketplace names
+const getMarketplaceColor = (marketplaceName: string) => {
+  if (marketplaceName.toLowerCase().includes("csfloat")) {
+    return "#237bff";
+  } else if (marketplaceName.toLowerCase().includes("skinbid")) {
+    return "#71b944";
+  } else if (marketplaceName.toLowerCase().includes("skinport")) {
+    return "#fa490a";
+  } else {
+    return "#2b2b2b";
   }
 };
 
@@ -127,7 +140,7 @@ const ItemCard: React.FC<ItemProps> = ({
       {/* Section with image */}
       <Card.Section style={{ position: "relative", height: "100%" }}>
         <Image
-          src={getValidImageUrl(imageUrl)}
+          src={imageUrl}
           alt={itemName}
           fit="cover"
           style={{
@@ -196,13 +209,14 @@ const ItemCard: React.FC<ItemProps> = ({
             mb="xs"
             style={{ color: "#fff", fontSize: "clamp(1.3rem, 2vw, 1.5rem)" }}
           >
-            {currencySymbol}{price}
+            {currencySymbol}
+            {price}
           </Text>
         </div>
 
         <BuyButton
           text={"Buy on " + marketplaceName}
-          color="#3a54d5"
+          color={getMarketplaceColor(marketplaceName)}
           listing_url={listingUrl}
         />
       </div>
