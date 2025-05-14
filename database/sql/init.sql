@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS listings (
     price FLOAT NOT NULL,
     price_currency TEXT NOT NULL,
     price_currency_sumbol TEXT NOT NULL,
-    listing_id BIGINT NOT NULL,
+    listing_id TEXT NOT NULL,
     listing_url TEXT NOT NULL,
     listing_timestamp BIGINT NOT NULL,
     marketplace TEXT NOT NULL

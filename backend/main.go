@@ -43,7 +43,7 @@ type Listing struct {
 	Price               float64  `json:"price"`
 	PriceCurrency       string   `json:"price_currency"`
 	PriceCurrencySymbol string   `json:"price_currency_symbol"`
-	ListingID           int64    `json:"listing_id"`
+	ListingID           string   `json:"listing_id"`
 	ListingURL          string   `json:"listing_url"`
 	ListingTimestamp    int64    `json:"listing_timestamp"`
 	Marketplace         string   `json:"marketplace"`
