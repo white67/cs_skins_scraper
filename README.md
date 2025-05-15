@@ -13,7 +13,7 @@ Project designed to continuously monitoring multiple marketplaces in real time, 
 
 ## Currently Supported Marketplaces
 
-CSFloat, Skinport, SkinBid
+CSFloat, Skinport, SkinBid, DMarket
 
 ## Tech Stack
 
@@ -79,5 +79,6 @@ Make sure you have Python 3.11+ installed. Run the scraper modules:
 python -m scraper.main_csfloat
 python -m scraper.main_skinport
 python -m scraper.main_skinbid
+python -m scraper.main_dmarket
 ```
 Note: Ensure all dependencies are installed (`npm install` for frontend, `go mod tidy` for backend, and `pip install -r requirements.txt` for scraper).
