@@ -50,6 +50,14 @@ SKINBID_LIMIT = 120 # Number of listings to scrape at once (maximum)
 SKINBID_SCRAPE_INTERVAL = 26  # seconds
 SKINBID_JSON_KEYWORD = "items"
 
+# Scraper configuration - DMarket
+DMARKET_MARKETPLACE = "DMARKET" # Marketplace name
+DMARKET_API_URL = "https://api.dmarket.com/exchange/v1/market/items?side=market&orderBy=updated&orderDir=desc&title=&priceFrom=0&priceTo=0&treeFilters=&gameId=a8db&types=dmarket&myFavorites=false&cursor=&limit=100&currency=USD&platform=browser&isLoggedIn=false"
+DMARKET_LISTING_URL = "https://dmarket.com/ingame-items/item-list/csgo-skins?userOfferId=" # Base URL for DMarket listings
+DMARKET_LIMIT = 100 # Number of listings to scrape at once (maximum)
+DMARKET_SCRAPE_INTERVAL = 26  # seconds
+DMARKET_JSON_KEYWORD = "objects"
+
 # Backend API configuration
 BACKEND_API_URL = "http://localhost:8080/api/listings"
 
