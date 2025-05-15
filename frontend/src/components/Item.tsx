@@ -24,6 +24,10 @@ interface ItemProps {
 
 // Function to return a gradient color based on rarity
 const getGradientColor = (str: string) => {
+  // if str is null or undefined, return default color
+  if (!str) {
+    return "rgb(94, 91, 86)";
+  }
   if (str.toLowerCase().includes("consumer")) {
     return "rgb(132, 123, 110)";
   } else if (str.toLowerCase().includes("industrial")) {
@@ -45,12 +49,15 @@ const getGradientColor = (str: string) => {
 
 // Function to return a color for different marketplace names
 const getMarketplaceColor = (marketplaceName: string) => {
-  if (marketplaceName.toLowerCase().includes("csfloat")) {
+  const market = marketplaceName.toLowerCase();
+  if (market.includes("csfloat")) {
     return "#237bff";
-  } else if (marketplaceName.toLowerCase().includes("skinbid")) {
+  } else if (market.includes("skinbid")) {
     return "#71b944";
-  } else if (marketplaceName.toLowerCase().includes("skinport")) {
+  } else if (market.includes("skinport")) {
     return "#fa490a";
+  } else if (market.includes("dmarket")) {
+    return "#00ffe0";
   } else {
     return "#2b2b2b";
   }
