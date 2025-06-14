@@ -1,5 +1,15 @@
 from pydantic import BaseModel
+from typing import Protocol, Type, runtime_checkable
 from typing import Optional
+
+@runtime_checkable
+class BaseParser(Protocol):
+    """Protocol defining the parser interface for marketplace listings"""
+    
+    @classmethod
+    def parse(cls, raw_data: dict) -> "Listing":
+        """Transform raw marketplace API data into standardized Listing format"""
+        ...
 
 class Listing(BaseModel):
     """

@@ -1,136 +1,107 @@
 import datetime
 from typing import Optional
 from .base_model import Listing
-from scraper.config import SKINPORT_LISTING_URL, SKINPORT_MARKETPLACE
-from scraper.config import STEAM_ICON_URL
-from scraper.utils import convert_currency_str_to_symbol
+from config import SKINPORT_LISTING_URL, SKINPORT_MARKETPLACE
+from config import STEAM_ICON_URL
+from utils import convert_currency_str_to_symbol
 
-class ListingSKINPORT(Listing):
-    """
-    Extended version of base model - supporting SKINPORT.
-    """
-    market_hash_name: str
-    item_name: str
-    created_at: Optional[str] = None
-    price: int
-    price_currency: str
-    price_currency_symbol: str
-    asset_id: Optional[int] = None
-    def_index: Optional[int] = None
-    paint_index: Optional[int] = None
-    paint_seed: Optional[int] = None
-    float_value: Optional[float] = None
-    icon_url: str
-    is_stattrak: Optional[bool] = False
-    is_souvenir: Optional[bool] = False
-    rarity: Optional[str] = None
-    wear: Optional[str] = None
-    inspect_link: Optional[str] = None
-    lock_timestamp: Optional[int] = None
-    item_type: str
-    tradable: bool
-    item_description: Optional[str] = None
-    item_collection: Optional[str] = None
-    item_type_category: Optional[str] = None
-    listing_id: str
-    listing_url: str
-    listing_timestamp: int
-    marketplace: str
-    status: str
+class SkinportParser:
+    """Parser implementation for Skinport marketplace listings"""
     
-    def __init__(self, listing: dict) -> None:
-        
-        created_at = listing.get("created_at", str(int(datetime.datetime.now().timestamp())))
-        lock_timestamp = self.get_lock_timestamp(listing.get("lock"))
-        
-        # Prepare data for the parent class (WEBSOCKET)
-        data_ws = {
-            "market_hash_name": listing.get("marketHashName", None),
-            "item_name": self.get_item_name(listing.get("title", None), listing.get("name", None)),
-            "created_at": created_at, # None
-            "price": listing.get("salePrice", None), # random currency
-            "asset_id": listing.get("assetid", None),
-            "def_index": listing.get("itemId", None), # no idea
-            "paint_index": listing.get("finish", None), # no idea
-            "paint_seed": listing.get("pattern", None), # pattern
-            "float_value": listing.get("wear", None),
-            "icon_url": self.generate_steam_icon_url(listing.get("image", None)),
-            "is_stattrak": listing.get("stattrak", False),
-            "is_souvenir": listing.get("souvenir", False),
-            "rarity": listing.get("rarity", None),
-            "wear": listing.get("exterior", None),
-            "inspect_link": listing.get("link", None),
-            "item_type": listing.get("category", None),
-            "item_description": None,
-            "item_collection": listing.get("collection", None),
-            "item_type_category": listing.get("subCategory", None),
-            "tradable": self.get_tradable(listing.get("lock", None)),  # Assuming all items are tradable on CSFLOAT
-            "lock_timestamp": self.get_lock_timestamp(listing.get("lock", None)),
-            "price_currency": listing.get("currency", None),
-            "price_currency_symbol": convert_currency_str_to_symbol(listing.get("currency", None)),
-            "listing_id": str(listing.get("saleId", None)),
-            "listing_url": self.get_listing_url(listing.get("url", None), listing.get("saleId", None)),  # Construct URL if needed
-            "listing_timestamp": self.get_listing_timestamp(),
-            "marketplace": SKINPORT_MARKETPLACE,
-            "status": listing.get("saleStatus", None)
-        }
-        
-        super().__init__(**data_ws)
+    @classmethod
+    def parse(cls, raw: dict) -> Listing:
+        """Main entry point for parsing Skinport listings"""
+        return Listing(
+            # Core item metadata
+            item_name=cls._get_item_name(raw.get("title"), raw.get("name")),
+            market_hash_name=raw.get("marketHashName"),
+            item_type=raw.get("category"),
+            item_type_category=raw.get("subCategory"),
+            
+            # Item specifics
+            def_index=raw.get("itemId"),
+            paint_index=raw.get("finish"),
+            paint_seed=raw.get("pattern"),
+            float_value=raw.get("wear"),
+            icon_url=cls._build_icon_url(raw.get("image")),
+            
+            # Item traits
+            is_stattrak=raw.get("stattrak", False),
+            is_souvenir=raw.get("souvenir", False),
+            rarity=raw.get("rarity"),
+            wear=raw.get("exterior"),
+            
+            # Trade and lock info
+            tradable=cls._is_tradable(raw.get("lock")),
+            lock_timestamp=cls._parse_lock_timestamp(raw.get("lock")),
+            
+            # Listing details
+            inspect_link=raw.get("link"),
+            item_collection=raw.get("collection"),
+            price=cls._parse_price(raw.get("salePrice")),
+            price_currency=raw.get("currency"),
+            price_currency_symbol=convert_currency_str_to_symbol(raw.get("currency")),
+            listing_id=str(raw.get("saleId")),
+            listing_url=cls._build_listing_url(raw.get("url"), raw.get("saleId")),
+            listing_timestamp=cls._parse_timestamp(raw.get("created_at")),
+            
+            # Marketplace info
+            marketplace=SKINPORT_MARKETPLACE,
+            status=raw.get("saleStatus"),
+        )
     
-    def get_item_name(self, title, name) -> str:
+    # Helper methods
+    
+    @staticmethod
+    def _get_item_name(title: Optional[str], name: Optional[str]) -> str:
+        """Construct full item name from title and name components"""
+        if not title or not name:
+            return ""
         return f"{title.replace('StatTrak™', '').strip()} | {name}"
     
-    def get_listing_url(self, url, saleId) -> str:
-        return f"{SKINPORT_LISTING_URL}{url}/{saleId}"
-    
-    def generate_steam_icon_url(self, icon_url) -> str:
-        return f"{STEAM_ICON_URL}{icon_url}" if icon_url else None
-    
-    def get_tradable(self, lock) -> bool:
-        if lock is None or lock == "None":
-            return False
-        else:
-            return True
-    
-    def get_lock_timestamp(self, lock_timestamp) -> int:
-        if lock_timestamp is None or lock_timestamp == "None":
+    @classmethod
+    def _build_listing_url(cls, base_url: Optional[str], sale_id: Optional[str]) -> Optional[str]:
+        """Construct full listing URL"""
+        if not sale_id or not base_url:
             return None
-        else:
-            # convert to int datetime timestamp from string "Timestamp(seconds=1746169200, nanoseconds=0)"
-            
-            lock_timestamp = int(lock_timestamp.split(",")[0].split("=")[1].strip())
-            
-            #return int(datetime.datetime.strptime(lock_timestamp, "%Y-%m-%dT%H:%M:%S.%fZ").timestamp())
+        return f"{SKINPORT_LISTING_URL}{base_url}/{sale_id}"
     
-    def get_listing_timestamp(self) -> int:
-        return int(datetime.datetime.now().timestamp())
-        
-    def map_to_base(self) -> Listing:
-        return Listing(
-            item_name=self.item_name,
-            market_hash_name=self.market_hash_name,
-            item_type=self.item_type,
-            item_type_category=self.item_type_category,
-            def_index=self.def_index,
-            paint_index=self.paint_index,
-            paint_seed=self.paint_seed,
-            float_value=self.float_value,
-            icon_url=self.icon_url,
-            is_stattrak=self.is_stattrak,
-            is_souvenir=self.is_souvenir,
-            rarity=self.rarity,
-            wear=self.wear,
-            tradable=self.tradable,
-            lock_timestamp=self.lock_timestamp,
-            inspect_link=self.inspect_link,
-            item_description=self.item_description,
-            item_collection=self.item_collection,
-            price=float(self.price) / 100,
-            price_currency=self.price_currency,
-            price_currency_symbol=self.price_currency_symbol,
-            listing_id=self.listing_id,
-            listing_url=self.listing_url,
-            listing_timestamp=self.listing_timestamp,
-            marketplace=self.marketplace,
-            status=self.status
-        )
+    @staticmethod
+    def _build_icon_url(icon_path: Optional[str]) -> Optional[str]:
+        """Generate full Steam CDN URL from icon path"""
+        return f"{STEAM_ICON_URL}{icon_path}" if icon_path else None
+    
+    @staticmethod
+    def _is_tradable(lock_status: Optional[str]) -> bool:
+        """Determine if item is currently tradable"""
+        return lock_status not in [None, "None", ""]
+    
+    @staticmethod
+    def _parse_lock_timestamp(lock_data: Optional[str]) -> Optional[int]:
+        """Extract lock expiration timestamp from raw data"""
+        if not lock_data or lock_data == "None":
+            return None
+            
+        try:
+            # Expected format: "Timestamp(seconds=1746169200, nanoseconds=0)"
+            return int(lock_data.split("seconds=")[1].split(",")[0].strip())
+        except (IndexError, ValueError):
+            return None
+    
+    @staticmethod
+    def _parse_price(raw_price: Optional[int]) -> float:
+        """Convert raw price to decimal value"""
+        return round(float(raw_price) / 100, 2) if raw_price else 0.0
+    
+    @staticmethod
+    def _parse_timestamp(created_at: Optional[str]) -> int:
+        """Convert Skinport timestamp to UNIX timestamp"""
+        if not created_at:
+            return int(datetime.datetime.now().timestamp())
+            
+        try:
+            # Example format: "2024-05-01T12:34:56Z"
+            dt = datetime.datetime.strptime(created_at, "%Y-%m-%dT%H:%M:%SZ")
+            return int(dt.timestamp())
+        except ValueError:
+            return int(datetime.datetime.now().timestamp())

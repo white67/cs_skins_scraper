@@ -1,22 +1,25 @@
-import threading
-from scraper.scrapers.skinbid_scaper import SKINBIDScraper
-import time
+import os
+import signal
+import sys
+from scrapers.skinbid_scraper import SkinBidScraper
+from config import SKINBID_MARKETPLACE
+
+def signal_handler(sig, frame):
+    print(f"\nStopping {SKINBID_MARKETPLACE} scraper...")
+    sys.exit(0)
 
 if __name__ == "__main__":
+    # Register Ctrl+C handler
+    signal.signal(signal.SIGINT, signal_handler)
     
-    # Start the scraper in a separate thread
-    scraper = SKINBIDScraper()
-
-    threading.Thread(
-        target=scraper.run_scraper(),
-        args=(scraper,),
-        daemon=True
-    ).start()
-
-    threading.Event().wait()
+    # Initialize and run scraper
+    scraper = SkinBidScraper()
+    print(f"Starting {SKINBID_MARKETPLACE} scraper (PID: {os.getpid()})")
     
     try:
-        while True:
-            time.sleep(1)  # lower CPU usage
+        scraper.run()
     except KeyboardInterrupt:
-        print("Stopping scraper...")
+        print("\nScraper stopped by user")
+    except Exception as e:
+        print(f"Critical error: {str(e)}")
+        sys.exit(1)

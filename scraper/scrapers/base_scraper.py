@@ -1,194 +1,160 @@
+# base_scraper.py
 import os
-import time
-import random
-import requests
-import psycopg2
-
 import json
 import logging
-from scraper.config import CACHE_FILE, LOGS_FILE, BACKEND_API_URL
-from scraper.models.base_model import Listing
+import random
+import time
+from pathlib import Path
+from typing import Type, List
+from abc import ABC, abstractmethod
+import requests
+from models.base_model import BaseParser, Listing
+from config import CACHE_FILE, LOGS_FILE, BACKEND_API_URL
 
-class BaseScraper:
-    """
-    Base class for scrapers.
-    """
-    def __init__(self, marketplace_name: str, api_url: str, ListingMODEL=None, headers=None, scrape_interval=60, api_limit=50, json_keyword=None):
+class LimitedSizeDict:
+    """In-memory cache with LRU eviction policy"""
+    def __init__(self, max_size=1000):
+        self.max_size = max_size
+        self._cache = {}
+
+    def __contains__(self, key):
+        return key in self._cache
+
+    def __setitem__(self, key, value):
+        if len(self._cache) >= self.max_size:
+            self._cache.pop(next(iter(self._cache)))
+        self._cache[key] = value
+
+    def update_from_json(self, data: list):
+        """Load initial state from JSON"""
+        for item in data:
+            if "listing_id" in item:
+                self._cache[item["listing_id"]] = item
+
+class BaseScraper(ABC):
+    def __init__(self, 
+                 parser: Type[BaseParser],
+                 marketplace_name: str,
+                 cache_size: int = 1000,
+                 request_timeout: int = 15):
+        self.parser = parser
         self.marketplace_name = marketplace_name
-        self.api_url = api_url
-        self.ListingMODEL = ListingMODEL
-        self.headers = headers
-        self.scrape_interval = scrape_interval
-        self.api_limit = api_limit
-        self.json_keyword = json_keyword
+        self.cache = LimitedSizeDict(max_size=cache_size)
+        self.session = requests.Session()
+        self.session.timeout = request_timeout
         self.consecutive_errors = 0
-        
-    def scrape(self, cache_listings: list[dict]):
-        """
-        Scrape new listings from XXX marketplace.
-        """
-        
-        raw_data = self.fetch_data(endpoint="", headers=self.headers)
-        
-        raw_data = raw_data[self.json_keyword]
-        if not raw_data:
-            return []
-        else:
-            new_listings = []
-            for listing in raw_data:
-                listing_dict = self.ListingMODEL(listing).map_to_base().to_dict()
-                if listing_dict not in cache_listings:
-                    new_listings.append(listing_dict)
-        return new_listings, cache_listings
+        self.logger = self._setup_logger()
+        self._load_persistent_cache()
 
-    def run_scraper(self):
-        """
-        Scrape and send new listings to API.
-        """
-        
-        logger = self.setup_logger()
-        cache_listings = self.load_cache()
-        
+    @abstractmethod
+    def fetch_raw_data(self) -> list[dict]:
+        """Marketplace-specific data fetching implementation"""
+        pass
+
+    def process(self) -> List[Listing]:
+        """Transform raw data to Listing objects"""
+        try:
+            raw_data = self.fetch_raw_data()
+            return [self.parser.parse(item) for item in raw_data]
+        except Exception as e:
+            self.logger.error(f"Processing failed: {str(e)}")
+            return []
+
+    def run(self):
+        """Main scraping loop"""
         while True:
             try:
-                new_listings, cache_listings = self.scrape(cache_listings)
+                listings = self.process()
+                new_items = self._filter_new(listings)
                 
-                if new_listings:
-                    # Send to API
-                    response = requests.post(BACKEND_API_URL, json=new_listings)
-                    if response.status_code == 201:
-                        logger.info(f"Found new listing batch ({len(new_listings)} items)")
-                    else:
-                        logger.error(f"API Error: {response.status_code} - {response.text}")
+                if new_items:
+                    self._send_to_api(new_items)
+                    self._update_cache(new_items)
+                    self._save_persistent_cache()
 
-                # Maintain cache size
-                cache_listings.extend(new_listings)
-                cache_listings = cache_listings[-self.api_limit:]
-
-                # Save cache to file
-                self.save_cache(cache_listings)
-                
+                sleep_time = self._get_interval()
+                self.logger.info(f"Cycle complete. Sleeping {sleep_time:.1f}s")
+                time.sleep(sleep_time)
                 self.consecutive_errors = 0
-                interval = self.get_randomized_interval()
-                
+
             except Exception as e:
-                logger.error(f"Error in fetch_new_listings: {str(e)}")
                 self.consecutive_errors += 1
-                interval = min(40 * self.consecutive_errors, 300)
-            
-            logger.info(f"Sleeping for {interval:.2f} seconds")
-            time.sleep(interval)
+                sleep_time = self._get_error_interval()
+                self.logger.error(f"Critical error: {str(e)}. Retrying in {sleep_time:.1f}s")
+                time.sleep(sleep_time)
 
-    def fetch_data(self, endpoint, headers={}):
-        """
-        Fetch data from the API endpoint.
-        """
+    # Helpers
+    
+    def _setup_logger(self):
+        """Configure marketplace-specific logger"""
+        log_dir = Path(LOGS_FILE)
+        log_dir.mkdir(parents=True, exist_ok=True)
         
-        url = f"{self.api_url}{endpoint}"
-        print(f"Fetching data from {url}")
-        try:
-            response = requests.get(url, headers=headers)
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            print(f"Error fetching data: {e}")
-            return None
-    
-    def sleep_random(self):
-        """
-        Sleep for a random time between 8 and 12 seconds.
-        """
-        time.sleep(random.uniform(8, 12))
-    
-    def insert_listing_to_db(self, listing: Listing):
-        """
-        Inserts a single listing into the PostgreSQL database.
-        """
-        
-        try:
-            # Load environment variables
-            DB_HOST = os.getenv("DB_HOST")
-            DB_PORT = os.getenv("DB_PORT")
-            DB_NAME = os.getenv("DB_NAME")
-            DB_USER = os.getenv("POSTGRES_USER")
-            DB_PASSWORD = os.getenv("POSTGRES_PASSWORD")
-            
-            # Connect to PostgreSQL database
-            conn = psycopg2.connect(
-                dbname=DB_NAME,
-                user=DB_USER,
-                password=DB_PASSWORD,
-                host=DB_HOST,
-                port=DB_PORT
-            )
-            cursor = conn.cursor()
+        handler = logging.FileHandler(log_dir / f"{self.marketplace_name}.log")
+        handler.setFormatter(logging.Formatter(
+            "%(asctime)s - %(levelname)s - %(message)s"
+        ))
 
-            # Prepare the insert query
-            insert_query = listing.generate_insert_query()
-            
-            # Prepare the data to insert
-            data = listing.to_db_tuple()
-            
-            # Execute the query
-            cursor.execute(insert_query, data)
-
-            # Commit the transaction
-            conn.commit()
-
-            print(f"Inserted listing {listing.item_name} into database.")
-
-        except Exception as e:
-            print(f"Error inserting listing to database: {e}")
-        finally:
-            # Close the cursor and connection
-            cursor.close()
-            conn.close()
-
-    def insert_new_listings_to_db(self, new_listings):
-        """
-        Inserts a list of new listings into the database.
-        """
-        for listing in new_listings:
-            self.insert_listing_to_db(listing)
-    
-    ####### REUSABLE SCRAPERS FUNCTIONS #######
-
-    def setup_logger(self):
-        """
-        Setup logger for the scraper.
-        """
-        log_file = LOGS_FILE + f"{self.marketplace_name}.log"
         logger = logging.getLogger(self.marketplace_name)
         logger.setLevel(logging.INFO)
-
-        handler = logging.FileHandler(log_file)
-        handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
-
+        
         if not logger.handlers:
             logger.addHandler(handler)
-        
+            
         return logger
 
-    def load_cache(self):
-        """
-        Load cached listings from a file.
-        """
-        filename = CACHE_FILE + f"{self.marketplace_name}_cache.json"
-        if os.path.exists(filename):
-            with open(filename, "r") as f:
-                return json.load(f)
-        return []
+    def _filter_new(self, listings: List[Listing]) -> List[Listing]:
+        """Filter out already seen listings"""
+        return [l for l in listings if l.listing_id not in self.cache]
 
-    def save_cache(self, cache_listings):
-        """
-        Save cache to a file.
-        """
-        filename = CACHE_FILE + f"{self.marketplace_name}_cache.json"
-        with open(filename, "w") as f:
-            json.dump(cache_listings, f, indent=4)
-            
-    def get_randomized_interval(self, variation=0.2):
-        """Returns interval between 5s and scrape_interval (±20%)"""
-        base = self.scrape_interval
-        randomized = base * (1 + random.uniform(-variation, variation))
-        return max(1, randomized)
+    def _update_cache(self, new_items: List[Listing]):
+        """Update in-memory cache"""
+        for item in new_items:
+            self.cache[item.listing_id] = item.dict()
+
+    def _get_interval(self, base_interval: float = 25) -> float:
+        """Get randomized interval with jitter"""
+        jitter = random.uniform(0.8, 1.2)
+        return base_interval * jitter
+
+    def _get_error_interval(self) -> float:
+        """Exponential backoff with jitter"""
+        base = 2 ** self.consecutive_errors
+        return random.uniform(1, min(base, 300))  # Max 5 minutes
+
+    def _send_to_api(self, listings: List[Listing]):
+        """Send new listings to backend"""
+        try:
+            response = requests.post(
+                BACKEND_API_URL,
+                json=[item.dict() for item in listings]
+            )
+            response.raise_for_status()
+            self.logger.info(f"Sent {len(listings)} items to API")
+        except Exception as e:
+            self.logger.error(f"API send failed: {str(e)}")
+
+    # Persistent cache management
+    
+    def _load_persistent_cache(self):
+        """Load cache from JSON file"""
+        cache_path = Path(CACHE_FILE) / f"{self.marketplace_name}_cache.json"
+        
+        try:
+            if cache_path.exists():
+                with open(cache_path) as f:
+                    data = json.load(f)
+                    self.cache.update_from_json(data)
+        except Exception as e:
+            self.logger.error(f"Cache load failed: {str(e)}")
+
+    def _save_persistent_cache(self):
+        """Save cache to JSON file"""
+        cache_path = Path(CACHE_FILE) / f"{self.marketplace_name}_cache.json"
+        
+        try:
+            cache_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(cache_path, 'w') as f:
+                json.dump(list(self.cache._cache.values()), f)
+        except Exception as e:
+            self.logger.error(f"Cache save failed: {str(e)}")

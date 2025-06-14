@@ -1,22 +1,25 @@
-import threading
-from scraper.scrapers.csfloat_scraper import CSFLOATScraper
-import time
+import os
+import signal
+import sys
+from scrapers.csfloat_scraper import CSFloatScraper
+from config import CSFLOAT_MARKETPLACE
+
+def signal_handler(sig, frame):
+    print(f"\nStopping {CSFLOAT_MARKETPLACE} scraper...")
+    sys.exit(0)
 
 if __name__ == "__main__":
+    # Register Ctrl+C handler
+    signal.signal(signal.SIGINT, signal_handler)
     
-    # Start the scraper in a separate thread
-    scraper = CSFLOATScraper()
-
-    threading.Thread(
-        target=scraper.run_scraper(),
-        args=(scraper,),
-        daemon=True
-    ).start()
-
-    threading.Event().wait()
+    # Initialize and run scraper
+    scraper = CSFloatScraper()
+    print(f"Starting {CSFLOAT_MARKETPLACE} scraper (PID: {os.getpid()})")
     
     try:
-        while True:
-            time.sleep(1)  # lower CPU usage
+        scraper.run()
     except KeyboardInterrupt:
-        print("Stopping scraper...")
+        print("\nScraper stopped by user")
+    except Exception as e:
+        print(f"Critical error: {str(e)}")
+        sys.exit(1)
