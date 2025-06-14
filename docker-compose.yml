@@ -1,0 +1,84 @@
+name: skins_valued
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./database:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 3s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    env_file:
+      - .env # Load all variables
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      - DOCKER_ENV=production
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - DB_HOST=${DB_HOST} # Explicitly set to service name
+      - DB_PORT=${DB_PORT}
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DB_HOST}:${DB_PORT}/${POSTGRES_DB}
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+
+  scraper_csfloat:
+    image: skins_valued-scraper
+    build: ./scraper
+    env_file: .env
+    environment:
+      - SCRAPER_NAME=csfloat
+      - SCRAPER_API_KEY=${CSFLOAT_API_KEY}  # Explicit mapping
+    depends_on: [db, backend]
+    volumes:
+      - ./logs:/app/logs
+
+  scraper_skinport:
+    image: skins_valued-scraper
+    env_file: .env
+    environment:
+      - SCRAPER_NAME=skinport
+    depends_on: [db, backend]
+    volumes:
+      - ./logs:/app/logs
+
+  scraper_skinbid:
+    image: skins_valued-scraper
+    env_file: .env
+    environment:
+      - SCRAPER_NAME=skinbid
+      - SCRAPER_API_KEY=${SKINBID_API_KEY}  # Explicit mapping
+    depends_on: [db, backend]
+    volumes:
+      - ./logs:/app/logs
+
+  scraper_dmarket:
+    image: skins_valued-scraper
+    env_file: .env
+    environment:
+      - SCRAPER_NAME=dmarket
+    depends_on: [db, backend]
+    volumes:
+      - ./logs:/app/logs
+
+volumes:
+  db_data:
