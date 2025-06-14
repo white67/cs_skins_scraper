@@ -10,7 +10,6 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
@@ -90,10 +89,10 @@ func insertListings(c *gin.Context) {
 	}
 
 	for _, listing := range newListings {
-		query := `INSERT INTO listings (item_name, market_hash_name, item_type, item_type_category, def_index, paint_index, paint_seed, float_value, icon_url, is_stattrak, is_souvenir, rarity, wear, tradable, trade_ban_days, inspect_link, item_description, item_collection, price, price_currency, listing_id, listing_url, listing_timestamp, marketplace) 
-				  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24) RETURNING id`
+		query := `INSERT INTO listings (item_name, market_hash_name, item_type, item_type_category, def_index, paint_index, paint_seed, float_value, icon_url, is_stattrak, is_souvenir, rarity, wear, tradable, trade_ban_days, inspect_link, item_description, item_collection, price, price_currency, price_currency_symbol, listing_id, listing_url, listing_timestamp, marketplace) 
+				  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25) RETURNING id`
 
-		err := db.QueryRow(query, listing.ItemName, listing.MarketHashName, listing.ItemType, listing.ItemTypeCategory, listing.DefIndex, listing.PaintIndex, listing.PaintSeed, listing.FloatValue, listing.IconUrl, listing.IsStatTrak, listing.IsSouvenir, listing.Rarity, listing.Wear, listing.Tradable, listing.TradeBanDays, listing.InspectLink, listing.ItemDescription, listing.ItemCollection, listing.Price, listing.PriceCurrency, listing.ListingID, listing.ListingURL, listing.ListingTimestamp, listing.Marketplace).Scan(&listing.ID)
+		err := db.QueryRow(query, listing.ItemName, listing.MarketHashName, listing.ItemType, listing.ItemTypeCategory, listing.DefIndex, listing.PaintIndex, listing.PaintSeed, listing.FloatValue, listing.IconUrl, listing.IsStatTrak, listing.IsSouvenir, listing.Rarity, listing.Wear, listing.Tradable, listing.TradeBanDays, listing.InspectLink, listing.ItemDescription, listing.ItemCollection, listing.Price, listing.PriceCurrency, listing.PriceCurrencySymbol, listing.ListingID, listing.ListingURL, listing.ListingTimestamp, listing.Marketplace).Scan(&listing.ID)
 
 		if err != nil {
 			log.Println("Database Insert Error:", err)
@@ -109,20 +108,28 @@ func insertListings(c *gin.Context) {
 
 // Initialize the database connection
 func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+
+	var hostname string
+
+	if os.Getenv("DOCKER_ENV") != "production" {
+		hostname = "localhost"
+	} else {
+		hostname = os.Getenv("DB_HOST")
+		if hostname == "" {
+			log.Fatal("DB_HOST environment variable is not set")
+		}
 	}
 
-	// Load database configuration from environment variables
+	//   postgres://user:password@host:port/dbname?sslmode=disable
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		os.Getenv("POSTGRES_USER"),
 		os.Getenv("POSTGRES_PASSWORD"),
-		os.Getenv("DB_HOST"),
+		hostname,
 		os.Getenv("DB_PORT"),
-		os.Getenv("DB_NAME"))
+		os.Getenv("POSTGRES_DB"))
 
 	// Connect to PostgreSQL
+	var err error
 	db, err = sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal("Error connecting to the database: ", err)
@@ -186,7 +193,6 @@ func getListings(c *gin.Context) {
 	c.JSON(http.StatusOK, listings)
 }
 
-// Main function
 func main() {
 	r := gin.Default()
 
@@ -196,11 +202,9 @@ func main() {
 	})
 
 	// Enable CORS for the frontend to access the backend API
-	r.Use(cors.Default()) // Use the default CORS policy
+	r.Use(cors.Default()) // default CORS policy
 
-	// Define routes
 	r.GET("/api/listings", getListings)
-
 	r.POST("/api/listings", insertListings) // Endpoint for scraper to send new listings
 
 	// Start the server
