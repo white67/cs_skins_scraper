@@ -6,10 +6,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
@@ -106,25 +108,33 @@ func insertListings(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "Listings inserted successfully"})
 }
 
+func loadEnvironment() {
+    // Load root .env from project root
+    projectRoot := filepath.Join(filepath.Dir(os.Args[0]), "..")
+    _ = godotenv.Load(filepath.Join(projectRoot, ".env"))
+    
+    _ = godotenv.Load()  // Loads .env.local from current directory
+}
+
 // Initialize the database connection
 func init() {
 
-	var hostname string
-
-	if os.Getenv("DOCKER_ENV") != "production" {
-		hostname = "localhost"
-	} else {
-		hostname = os.Getenv("DB_HOST")
-		if hostname == "" {
-			log.Fatal("DB_HOST environment variable is not set")
-		}
-	}
+	loadEnvironment()
+	
+	// if os.Getenv("DOCKER_ENV") != "production" {
+	// 	hostname = "localhost"
+	// } else {
+	// 	hostname = os.Getenv("DB_HOST")
+	// 	if hostname == "" {
+	// 		log.Fatal("DB_HOST environment variable is not set")
+	// 	}
+	// }
 
 	//   postgres://user:password@host:port/dbname?sslmode=disable
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		os.Getenv("POSTGRES_USER"),
 		os.Getenv("POSTGRES_PASSWORD"),
-		hostname,
+		os.Getenv("DB_HOST"),
 		os.Getenv("DB_PORT"),
 		os.Getenv("POSTGRES_DB"))
 

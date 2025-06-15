@@ -2,9 +2,14 @@ from dotenv import load_dotenv
 import os
 from pathlib import Path
 
-# Load .env.local for local development, unless running in Docker
+# 1. Load parent .env from project root
+root_env_path = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(root_env_path)
+
+# 2. Load local .env.local if not in production
 if os.getenv("DOCKER_ENV") != "production":
-    load_dotenv(".env.local", override=True)
+    local_env_path = Path(__file__).parent / ".env.local"
+    load_dotenv(local_env_path, override=True)
 
 STEAM_ICON_URL = "https://steamcommunity-a.akamaihd.net/economy/image/"
 
