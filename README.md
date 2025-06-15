@@ -20,10 +20,10 @@ CSFloat, Skinport, SkinBid, DMarket
 This project is built using modern technologies to ensure speed, scalability, and ease of deployment. Currently consisting of:
 
 - **Backend:** Go (Gin, WebSockets)
-- **Scraper:** Custom-built Python script with requests/websocket
+- **Scraper:** Custom-built Python script (requests, websocket)
 - **Frontend:** React (TypeScript)
 - **Database:** PostgreSQL
-- **Infrastructure:** TBD
+- **Infrastructure:** Docker, Docker Compose
 - **Testing:** TBD
 
 ## Upcoming Features
@@ -42,10 +42,6 @@ This project is built using modern technologies to ensure speed, scalability, an
 
 **Full API Support** – Integrate the scraper into your own projects
 
-## Deployment with Docker
-
-TBD
-
 ## Running Tests
 
 TBD
@@ -56,29 +52,63 @@ Project still in development.
 
 ## 🚀 How to Run the App
 
-To run the project locally, follow these steps:
+You can run the project locally (each service on your host) or fully containerized using Docker Compose.
 
-**Frontend**  
-Navigate to the `frontend` directory and start the development server:
+---
+
+### Running Locally (Development)
+
+**1. Database**
+
+You need a running PostgreSQL instance.  
+Create the database and table using the provided SQL script:
+
+```bash
+# Start your local PostgreSQL server
+psql -U <your_user> -d <your_database> -f database/01_create_table.sql
+```
+
+**2. Backend**
+
+```bash
+cd backend
+go mod tidy
+go run main.go
+```
+
+**3. Frontend**
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-**Backend**  
-Navigate to the `backend` directory and run the Go server:
+**4. Scrapers**
+
+Open a terminal for each scraper you want to run:
+
 ```bash
-cd backend
-go run main.go
+cd scraper
+pip install -r requirements.txt
+python -m main_csfloat
+python -m main_skinport
+python -m main_dmarket
+python -m main_skinbid
 ```
 
-**Scraper**  
-Make sure you have Python 3.11+ installed. Run the scraper modules:
+> **Note:**  
+> Make sure your `.env` or `.env.local` files are set up with the correct environment variables for local development.
+
+---
+
+### Running with Docker Compose
+
+This will start **all services** (database, backend, frontend, scrapers) in containers.
+
 ```bash
-python -m scraper.main_csfloat
-python -m scraper.main_skinport
-python -m scraper.main_skinbid
-python -m scraper.main_dmarket
+docker compose build --no-cache
+docker compose up -d
 ```
-Note: Ensure all dependencies are installed (`npm install` for frontend, `go mod tidy` for backend, and `pip install -r requirements.txt` for scraper).
+
+- All environment variables are managed via the `.env` file and `docker-compose.yml`.
