@@ -2,6 +2,8 @@ from dotenv import load_dotenv
 import os
 from pathlib import Path
 
+
+load_dotenv(override=True)  # This will force new values even if already set
 # 1. Load parent .env from project root
 root_env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(root_env_path)

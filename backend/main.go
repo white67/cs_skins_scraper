@@ -109,18 +109,21 @@ func insertListings(c *gin.Context) {
 }
 
 func loadEnvironment() {
-    // Load root .env from project root
-    projectRoot := filepath.Join(filepath.Dir(os.Args[0]), "..")
-    _ = godotenv.Load(filepath.Join(projectRoot, ".env"))
-    
-    _ = godotenv.Load()  // Loads .env.local from current directory
+	// Load root .env from project root
+	projectRoot := filepath.Join(filepath.Dir(os.Args[0]), "..")
+	_ = godotenv.Load(filepath.Join(projectRoot, ".env"))
+
+	_ = godotenv.Overload(".env.local") // Loads .env.local from current directory
 }
 
 // Initialize the database connection
 func init() {
 
 	loadEnvironment()
-	
+	// godotenv.Overload(".env")
+
+	// var hostname string
+
 	// if os.Getenv("DOCKER_ENV") != "production" {
 	// 	hostname = "localhost"
 	// } else {
