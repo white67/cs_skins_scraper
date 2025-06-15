@@ -54,6 +54,9 @@ Project still in development.
 
 You can run the project locally (each service on your host) or fully containerized using Docker Compose.
 
+> **Note:**  
+> Make sure your `.env` file in the root directory is set up with the correct environment variables for local development (see `.env.example`).
+
 ---
 
 ### Running Locally (Development)
@@ -96,9 +99,6 @@ python -m main_skinport
 python -m main_dmarket
 python -m main_skinbid
 ```
-
-> **Note:**  
-> Make sure your `.env` or `.env.local` files are set up with the correct environment variables for local development.
 
 ---
 
