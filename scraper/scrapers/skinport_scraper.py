@@ -36,7 +36,10 @@ class SkinportScraper:
         """Register WebSocket event handlers"""
         @self.client.listen("saleFeed")
         async def on_sale_feed(data):
-            await self._process_sales(data.get(SKINPORT_JSON_KEYWORD, []))
+            # process only listed, not sold
+            if data["eventType"] == "listed":
+                await self._process_sales(data.get(SKINPORT_JSON_KEYWORD, []))
+            # self.logger.info(f"Raw data:\n{data}\n")
 
     async def _process_sales(self, raw_sales: list):
         """Process incoming sales data immediately"""

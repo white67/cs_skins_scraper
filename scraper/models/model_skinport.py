@@ -1,4 +1,5 @@
 import datetime
+import logging
 from typing import Optional
 from .base_model import Listing
 from config import SKINPORT_LISTING_URL, SKINPORT_MARKETPLACE
@@ -11,6 +12,7 @@ class SkinportParser:
     @classmethod
     def parse(cls, raw: dict) -> Listing:
         """Main entry point for parsing Skinport listings"""
+        print(raw.get("created_at"))
         return Listing(
             # Core item metadata
             item_name=cls._get_item_name(raw.get("title"), raw.get("name")),
@@ -77,15 +79,19 @@ class SkinportParser:
         return lock_status not in [None, "None", ""]
     
     @staticmethod
-    def _parse_lock_timestamp(lock_data: Optional[str]) -> Optional[int]:
+    def _parse_lock_timestamp(lock_data: Optional[dict]) -> Optional[int]:
         """Extract lock expiration timestamp from raw data"""
-        if not lock_data or lock_data == "None":
+        if not isinstance(lock_data, dict) or "seconds" not in lock_data:
+            #logging.error(f"Unexpected lock_data format: {lock_data}")
             return None
-            
+
         try:
-            # Expected format: "Timestamp(seconds=1746169200, nanoseconds=0)"
-            return int(lock_data.split("seconds=")[1].split(",")[0].strip())
-        except (IndexError, ValueError):
+            lock_dt = datetime.datetime.fromtimestamp(lock_data["seconds"])
+            now = datetime.datetime.now()
+            delta = lock_dt - now
+            return delta.days
+        except Exception as e:
+            #logging.error(f"Error parsing lock timestamp: {e}")
             return None
     
     @staticmethod
