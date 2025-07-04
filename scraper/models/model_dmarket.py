@@ -53,7 +53,7 @@ class DMarketParser:
             is_stattrak=cls._parse_stattrak(extra.get("category")),
             is_souvenir=cls._parse_souvenir(extra.get("category")),
             rarity=cls._map_rarity(extra.get("quality")),
-            wear=extra.get("exterior"),
+            wear=cls._parse_wear(extra.get("exterior")),
             inspect_link=extra.get("inspectInGame"),
             item_type=extra.get("itemType"),
             item_description=None,
@@ -69,6 +69,28 @@ class DMarketParser:
         )
 
     # Helper methods ==========================================================
+
+    @staticmethod
+    def _parse_wear(raw_wear: Optional[str]) -> str:
+        """Convert cents to dollars"""
+        if not raw_wear:
+            return None
+        
+        try:
+            if raw_wear[:2] == "fa":
+                return "Factory New"
+            elif raw_wear[:2] == "mi":
+                return "Minimal Wear"
+            elif raw_wear[:2] == "fi":
+                return "Field-Tested"
+            elif raw_wear[:2] == "we":
+                return "Well-Worn"
+            elif raw_wear[:2] == "ba":
+                return "Battle-Scarred"
+            else:
+                return raw_wear
+        except (TypeError, ValueError):
+            return None
 
     @staticmethod
     def _parse_price(raw_price: Optional[int]) -> float:

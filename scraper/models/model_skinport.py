@@ -12,7 +12,6 @@ class SkinportParser:
     @classmethod
     def parse(cls, raw: dict) -> Listing:
         """Main entry point for parsing Skinport listings"""
-        print(raw.get("created_at"))
         return Listing(
             # Core item metadata
             item_name=cls._get_item_name(raw.get("title"), raw.get("name")),

@@ -27,7 +27,7 @@ class SkinBidParser:
             def_index=item_data.get("defIndex"),
             paint_index=item_data.get("paintIndex"),
             paint_seed=item_data.get("paintSeed"),
-            float_value=item_data.get("float"),
+            float_value=item_data.get("float") if item_data.get("float") != 0.0 else None,
             icon_url=item_data.get("imageUrl"),
             
             is_stattrak=item_data.get("isStatTrak", False),

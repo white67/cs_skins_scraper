@@ -55,6 +55,9 @@ class BaseScraper(ABC):
         """Transform raw data to Listing objects"""
         try:
             raw_data = self.fetch_raw_data()
+            # with open("xd.json", 'w') as log_file:
+            #     json.dump(raw_data, log_file, indent=4)
+            # self.logger.info(f"{raw_data}")
             return [self.parser.parse(item) for item in raw_data]
         except Exception as e:
             self.logger.error(f"Processing failed: {str(e)}")
